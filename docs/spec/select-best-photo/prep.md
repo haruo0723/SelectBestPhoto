@@ -46,7 +46,7 @@
 - APIキー、証明書、`GoogleService-Info.plist` などの設定ファイルをリポジトリへ含めるかは、Firebaseプロジェクト作成時に方針を決める。🔵
 - Firestore / StorageのSecurity Rulesを緩いまま本運用しない。🔵
 - 写真パス、ペアコード、ユーザーID、個人情報をログに出さない。🔵
-- iPhone写真ライブラリ上の元データを直接変更・削除しない。🔵
+- iPhone写真ライブラリおよびiCloud写真上の元データを変更・削除しない。削除対象はFirebase Cloud Storage上の派生ファイルに限定する。🔵
 
 ## 6. タスク件数
 
