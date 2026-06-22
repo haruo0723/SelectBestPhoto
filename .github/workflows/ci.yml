@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - feature/**
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-checks:
+    name: Repository checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check required docs
+        run: .github/scripts/check-docs.sh
+
+  ios-checks:
+    name: iOS checks
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Resolve Xcode project
+        id: xcode-project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          project="$(find . -maxdepth 2 -name '*.xcodeproj' -print -quit)"
+          workspace="$(find . -maxdepth 2 -name '*.xcworkspace' -print -quit)"
+
+          if [[ -n "${workspace}" ]]; then
+            echo "container=-workspace ${workspace}" >> "${GITHUB_OUTPUT}"
+          elif [[ -n "${project}" ]]; then
+            echo "container=-project ${project}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "container=" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build
+        if: steps.xcode-project.outputs.container != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild ${{ steps.xcode-project.outputs.container }} \
+            -scheme SelectBestPhoto \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            build
+
+      - name: Test
+        if: steps.xcode-project.outputs.container != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild ${{ steps.xcode-project.outputs.container }} \
+            -scheme SelectBestPhoto \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            test
+
+      - name: Skip Xcode checks
+        if: steps.xcode-project.outputs.container == ''
+        run: echo "No Xcode project or workspace found yet. Skipping build and tests."
+
+      - name: SwiftLint
+        if: hashFiles('.swiftlint.yml', '.swiftlint.yaml') != ''
+        run: |
+          if command -v swiftlint >/dev/null 2>&1; then
+            swiftlint
+          else
+            brew install swiftlint
+            swiftlint
+          fi
+
+      - name: SwiftFormat lint
+        if: hashFiles('.swiftformat') != ''
+        run: |
+          if command -v swiftformat >/dev/null 2>&1; then
+            swiftformat --lint .
+          else
+            brew install swiftformat
+            swiftformat --lint .
+          fi
