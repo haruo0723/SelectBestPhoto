@@ -48,19 +48,32 @@
 - データ保存: Cloud Firestore
 - メディア保存: Firebase Cloud Storage
 - パッケージ管理: Swift Package Managerを優先する。変更する場合は事前に確認する。
-- ビルドコマンド: Xcodeプロジェクト作成後に更新する。
-- テストコマンド: Xcodeプロジェクト作成後に更新する。
+- ビルドコマンド: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project SelectBestPhoto.xcodeproj -scheme SelectBestPhoto -destination 'generic/platform=iOS Simulator' -derivedDataPath .build/DerivedData build`
+- テストビルドコマンド: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project SelectBestPhoto.xcodeproj -scheme SelectBestPhoto -destination 'generic/platform=iOS Simulator' -derivedDataPath .build/DerivedData build-for-testing`
+- テスト実行コマンド: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild test -project SelectBestPhoto.xcodeproj -scheme SelectBestPhoto -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath .build/DerivedData`
+- ローカル確認方針: Mac負荷を抑えるため、通常は `build` / `build-for-testing` までを確認する。画面や端末固有の動作確認はユーザーが実機で行い、Simulator上のテスト実行はCIまたは必要時に限定する。
 - Lint/Formatコマンド: SwiftLint / SwiftFormat の採用要否はプロジェクト作成後に判断する。
 - ローカル起動コマンド: Xcodeプロジェクト作成後に更新する。
 
 ## ディレクトリ構成
 
-現時点の構成は以下。Xcodeプロジェクト作成後に更新する。
+現時点の構成は以下。
 
 ```text
 .
+├── SelectBestPhoto.xcodeproj/
+├── SelectBestPhoto/
+│   ├── App/
+│   ├── Features/
+│   └── Resources/
+├── SelectBestPhotoTests/
+├── SelectBestPhotoUITests/
 ├── docs/
-│   └── requirements.md
+│   ├── requirements.md
+│   ├── spec/
+│   ├── design/
+│   ├── tasks/
+│   └── implements/
 ├── README.md
 └── AGENTS.md
 ```
