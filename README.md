@@ -39,6 +39,24 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 ├── SelectBestPhoto/
 │   ├── App/
 │   ├── Features/
+│   │   ├── Pairing/
+│   │   ├── MonthlyBest/
+│   │   ├── AnnualBest/
+│   │   ├── CustomCategories/
+│   │   ├── TextCategories/
+│   │   ├── RevivalPicks/
+│   │   ├── ResultReveal/
+│   │   └── Settings/
+│   ├── Models/
+│   ├── Services/
+│   │   ├── Firebase/
+│   │   ├── Media/
+│   │   ├── Cache/
+│   │   └── Storage/
+│   ├── Shared/
+│   │   ├── Components/
+│   │   ├── Extensions/
+│   │   └── Utilities/
 │   └── Resources/
 ├── SelectBestPhotoTests/
 ├── SelectBestPhotoUITests/
@@ -46,3 +64,5 @@ sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 ├── README.md
 └── AGENTS.md
 ```
+
+Firebase初期化は `SelectBestPhoto/App/AppDelegate.swift` に集約しています。`GoogleService-Info.plist` が未投入の開発初期状態では初期化をスキップし、Firebase設定ファイル投入後に `FirebaseApp.configure()` が実行されます。
