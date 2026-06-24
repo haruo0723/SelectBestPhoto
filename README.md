@@ -45,6 +45,27 @@ brew install swiftlint swiftformat
 
 CIは `.github/workflows/ci.yml` で、ビルド、Simulatorテスト、SwiftLint、SwiftFormatの最小チェックを実行します。
 
+## Firebase Emulator
+
+Firebase連携とSecurity Rules検証は、ローカルではFirebase Emulator Suiteを前提にします。初期設定は軽量な土台に留め、具体的なFirestore RulesはTASK-0010、Storage RulesはTASK-0011で拡張します。
+
+```bash
+# Firebase CLIとRulesテスト依存をインストール
+npm install
+
+# Auth / Firestore / Storage Emulatorを起動
+npm run firebase:emulators
+
+# Firestore / Storage Rulesテストを実行
+npm run firebase:rules:test
+```
+
+EmulatorのローカルプロジェクトIDは `demo-select-best-photo` です。ポートはAuth `9099`、Firestore `8080`、Storage `9199`、Emulator UI `4000` を使用します。
+
+`GoogleService-Info.plist` は実Firebaseプロジェクト固有の設定ファイルのため、リポジトリにはコミットしません。ローカルではFirebase Consoleから取得したファイルをXcodeプロジェクトの対象リソースに追加し、必要な開発者だけが手元に保持します。
+
+DebugビルドでEmulatorへ接続する実装は、Firebase Service層を追加するタイミングで `#if DEBUG` に限定して行います。本番ビルドではEmulator接続コードを有効にしません。
+
 ## 現在の構成
 
 ```text
@@ -75,6 +96,11 @@ CIは `.github/workflows/ci.yml` で、ビルド、Simulatorテスト、SwiftLin
 ├── SelectBestPhotoTests/
 ├── SelectBestPhotoUITests/
 ├── docs/
+├── firebase.json
+├── firestore.rules
+├── storage.rules
+├── package.json
+├── tests/
 ├── README.md
 └── AGENTS.md
 ```
