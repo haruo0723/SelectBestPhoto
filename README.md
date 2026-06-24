@@ -21,6 +21,12 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project Sel
 
 # CIまたは必要時のみ: Simulator上でテストを実行
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild test -project SelectBestPhoto.xcodeproj -scheme SelectBestPhoto -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath .build/DerivedData
+
+# Lint
+swiftlint
+
+# Formatチェック
+swiftformat --lint .
 ```
 
 `xcodebuild` をそのまま使うには Xcode 本体を選択してください。グローバル設定を変更したくない場合は、上記のように `DEVELOPER_DIR` を指定します。
@@ -30,6 +36,14 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild test -projec
 ```bash
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 ```
+
+SwiftLint / SwiftFormat が未インストールの場合は Homebrew で導入します。
+
+```bash
+brew install swiftlint swiftformat
+```
+
+CIは `.github/workflows/ci.yml` で、ビルド、Simulatorテスト、SwiftLint、SwiftFormatの最小チェックを実行します。
 
 ## 現在の構成
 

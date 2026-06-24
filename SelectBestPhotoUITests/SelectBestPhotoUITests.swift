@@ -6,7 +6,7 @@ final class SelectBestPhotoUITests: XCTestCase {
     }
 
     @MainActor
-    func testLaunchShowsHome() throws {
+    func testLaunchShowsHome() {
         let app = XCUIApplication()
         app.launch()
 

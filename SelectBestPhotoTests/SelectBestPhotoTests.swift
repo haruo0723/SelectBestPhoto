@@ -1,5 +1,5 @@
-import Testing
 @testable import SelectBestPhoto
+import Testing
 
 struct SelectBestPhotoTests {
     @Test func appModuleLoads() {
