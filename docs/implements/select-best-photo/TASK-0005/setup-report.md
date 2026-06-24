@@ -39,9 +39,12 @@ TASK-0005では軽量対応として、初期状態は全拒否のRulesにした
 **作成ファイル**:
 
 - `package.json`
+- `package-lock.json`
 - `tests/firebase/rules.test.mjs`
 
 Firebase Emulator Suite上でFirestore/Storage Rulesテストを実行する入口を追加した。初期テストでは、Rulesが全拒否であることを確認する。
+
+`@firebase/rules-unit-testing@4.0.1` はJS SDK `firebase@^11` をpeer dependencyとして要求するため、Nodeテスト用の `firebase` は11系に固定した。これはiOSアプリ側のFirebase Apple SDK 12系とは別の開発用依存である。
 
 ### 4. Firebase設定ファイル管理
 
@@ -66,12 +69,14 @@ Firebase Emulator Suite上でFirestore/Storage Rulesテストを実行する入�
 
 - [x] Firebase Emulator Suiteの設定ファイルを追加
 - [x] Firestore/Storage Rulesテストの入口を追加
+- [x] npm依存をインストールし、`package-lock.json` を追加
 - [x] Debug時Emulator接続方針を文書化
 - [x] `GoogleService-Info.plist` の管理方針をREADMEと設計メモへ記載
 - [x] TASK-0005の完了記録を更新
 
 ## 注意事項
 
-- 軽量対応のため、Firebase CLIやnpm依存のインストールは実行していない。
+- Firebase Emulator Suite実行のため、HomebrewでOpenJDK 26.0.1を導入した。
+- `npm audit --audit-level=high` では `firebase-tools@14` の推移的依存に7件の脆弱性が検出された。自動修正は `firebase-tools@15` への破壊的更新を伴うため、このタスクでは未適用。
 - Rules詳細はTASK-0010/TASK-0011で実装する前提として、現時点のRulesは全拒否にしている。
 - アプリ側のEmulator接続コードは、Firebase Service層を追加する後続タスクで実装する。

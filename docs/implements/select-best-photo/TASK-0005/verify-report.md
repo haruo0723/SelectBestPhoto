@@ -16,6 +16,7 @@
 - [x] `firestore.rules` が存在する
 - [x] `storage.rules` が存在する
 - [x] `package.json` にEmulator起動とRulesテストのscriptがある
+- [x] `package-lock.json` が存在する
 - [x] `tests/firebase/rules.test.mjs` が存在する
 
 ### ドキュメント
@@ -41,6 +42,9 @@ node -e "JSON.parse(require('fs').readFileSync('.firebaserc','utf8')); JSON.pars
 node --check tests/firebase/rules.test.mjs
 test -f firestore.rules
 test -f storage.rules
+npm install
+PATH=/usr/local/opt/openjdk/bin:$PATH npm run firebase:rules:test
+npm audit --audit-level=high
 git diff --check
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -project SelectBestPhoto.xcodeproj -scheme SelectBestPhoto -destination 'generic/platform=iOS Simulator' -derivedDataPath .build/DerivedData build
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swiftlint
@@ -53,6 +57,9 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swiftformat --lint .
 JSON parse: OK
 Node syntax: OK
 Rules files: OK
+npm install: OK
+npm run firebase:rules:test: 3 tests passed
+npm audit --audit-level=high: 7 vulnerabilities (5 moderate, 2 high)
 git diff --check: OK
 xcodebuild build: ** BUILD SUCCEEDED **
 swiftlint: Found 0 violations, 0 serious in 5 files.
@@ -61,9 +68,13 @@ swiftformat --lint .: 0/5 files require formatting, 64 files skipped.
 
 未実行:
 
-- `npm install`: ネットワークアクセスと依存解決を伴うため未実行
-- `npm run firebase:rules:test`: npm依存が未インストールのため未実行
 - `npm run firebase:emulators`: ローカル常駐プロセス起動を伴うため未実行
+
+補足:
+
+- `@firebase/rules-unit-testing@4.0.1` のpeer dependencyに合わせ、Nodeテスト用 `firebase` は11系に調整した。
+- `npm audit --audit-level=high` の自動修正は `firebase-tools@15.22.1` への破壊的更新を伴うため、このタスクでは未適用。
+- Homebrewで導入したOpenJDKはkeg-onlyのため、Rulesテスト実行時は `PATH=/usr/local/opt/openjdk/bin:$PATH` を明示した。
 
 ## 完了判定
 

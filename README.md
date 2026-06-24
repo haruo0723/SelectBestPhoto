@@ -53,6 +53,9 @@ Firebase連携とSecurity Rules検証は、ローカルではFirebase Emulator S
 # Firebase CLIとRulesテスト依存をインストール
 npm install
 
+# Firebase Emulator SuiteはJavaを使用します。Java未導入の場合はOpenJDKを導入
+brew install openjdk
+
 # Auth / Firestore / Storage Emulatorを起動
 npm run firebase:emulators
 
@@ -61,6 +64,12 @@ npm run firebase:rules:test
 ```
 
 EmulatorのローカルプロジェクトIDは `demo-select-best-photo` です。ポートはAuth `9099`、Firestore `8080`、Storage `9199`、Emulator UI `4000` を使用します。
+
+HomebrewのOpenJDKを使う場合、Javaが見つからない環境では以下のようにPATHを明示して実行します。
+
+```bash
+PATH=/usr/local/opt/openjdk/bin:$PATH npm run firebase:rules:test
+```
 
 `GoogleService-Info.plist` は実Firebaseプロジェクト固有の設定ファイルのため、リポジトリにはコミットしません。ローカルではFirebase Consoleから取得したファイルをXcodeプロジェクトの対象リソースに追加し、必要な開発者だけが手元に保持します。
 
