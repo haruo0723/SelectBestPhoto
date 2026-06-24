@@ -1,0 +1,14 @@
+{
+  "name": "select-best-photo-firebase-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "firebase:emulators": "firebase emulators:start --project demo-select-best-photo --only auth,firestore,storage",
+    "firebase:rules:test": "firebase emulators:exec --project demo-select-best-photo --only firestore,storage \"node --test tests/firebase/*.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.0",
+    "firebase": "^11.0.0",
+    "firebase-tools": "^15.22.1"
+  }
+}

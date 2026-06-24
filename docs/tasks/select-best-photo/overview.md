@@ -35,7 +35,7 @@
 
 ## 全体進捗
 
-- [ ] Phase 1: 基盤構築
+- [x] Phase 1: 基盤構築
 - [ ] Phase 2: モデル・サービス基盤
 - [ ] Phase 3: メディア処理
 - [ ] Phase 4: 入力・設定機能
@@ -48,7 +48,7 @@
 - [x] [TASK-0002: Firebase SDK初期導入](TASK-0002.md) - 6h (DIRECT) 🔵 - 完了: 2026-06-22
 - [x] [TASK-0003: App起点とディレクトリ構成整備](TASK-0003.md) - 6h (DIRECT) 🔵 - 完了: 2026-06-24
 - [x] [TASK-0004: Lint/Format/CI初期設定](TASK-0004.md) - 6h (DIRECT) 🔵 - 完了: 2026-06-24
-- [ ] [TASK-0005: Firebase Emulator検証環境](TASK-0005.md) - 6h (DIRECT) 🔵
+- [x] [TASK-0005: Firebase Emulator検証環境](TASK-0005.md) - 6h (DIRECT) 🔵 - 完了: 2026-06-24
 
 ## Phase 2: モデル・サービス基盤
 

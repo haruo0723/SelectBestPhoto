@@ -4,6 +4,15 @@
 
 .DS_Store
 
+# Firebase local/private files
+GoogleService-Info.plist
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+firebase-export-*/
+*.local
+node_modules/
+
 ## User settings
 xcuserdata/
 
