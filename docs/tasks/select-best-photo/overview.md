@@ -47,7 +47,7 @@
 - [x] [TASK-0001: Xcodeプロジェクト作成とiOS設定](TASK-0001.md) - 8h (DIRECT) 🔵 - 完了: 2026-06-22
 - [x] [TASK-0002: Firebase SDK初期導入](TASK-0002.md) - 6h (DIRECT) 🔵 - 完了: 2026-06-22
 - [x] [TASK-0003: App起点とディレクトリ構成整備](TASK-0003.md) - 6h (DIRECT) 🔵 - 完了: 2026-06-24
-- [ ] [TASK-0004: Lint/Format/CI初期設定](TASK-0004.md) - 6h (DIRECT) 🔵
+- [x] [TASK-0004: Lint/Format/CI初期設定](TASK-0004.md) - 6h (DIRECT) 🔵 - 完了: 2026-06-24
 - [ ] [TASK-0005: Firebase Emulator検証環境](TASK-0005.md) - 6h (DIRECT) 🔵
 
 ## Phase 2: モデル・サービス基盤
