@@ -59,7 +59,7 @@ Node syntax: OK
 Rules files: OK
 npm install: OK
 npm run firebase:rules:test: 3 tests passed
-npm audit --audit-level=high: 7 vulnerabilities (5 moderate, 2 high)
+npm audit --audit-level=high: 5 moderate vulnerabilities, highなし
 git diff --check: OK
 xcodebuild build: ** BUILD SUCCEEDED **
 swiftlint: Found 0 violations, 0 serious in 5 files.
@@ -73,7 +73,7 @@ swiftformat --lint .: 0/5 files require formatting, 64 files skipped.
 補足:
 
 - `@firebase/rules-unit-testing@4.0.1` のpeer dependencyに合わせ、Nodeテスト用 `firebase` は11系に調整した。
-- `npm audit --audit-level=high` の自動修正は `firebase-tools@15.22.1` への破壊的更新を伴うため、このタスクでは未適用。
+- `firebase-tools` は `15.22.1` へ更新し、`tar` 由来のhigh脆弱性が検出されない状態にした。
 - Homebrewで導入したOpenJDKはkeg-onlyのため、Rulesテスト実行時は `PATH=/usr/local/opt/openjdk/bin:$PATH` を明示した。
 
 ## 完了判定

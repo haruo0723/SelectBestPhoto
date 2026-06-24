@@ -77,6 +77,6 @@ Firebase Emulator Suite上でFirestore/Storage Rulesテストを実行する入�
 ## 注意事項
 
 - Firebase Emulator Suite実行のため、HomebrewでOpenJDK 26.0.1を導入した。
-- `npm audit --audit-level=high` では `firebase-tools@14` の推移的依存に7件の脆弱性が検出された。自動修正は `firebase-tools@15` への破壊的更新を伴うため、このタスクでは未適用。
+- `firebase-tools` は `15.22.1` へ更新し、`npm audit --audit-level=high` が成功することを確認した。
 - Rules詳細はTASK-0010/TASK-0011で実装する前提として、現時点のRulesは全拒否にしている。
 - アプリ側のEmulator接続コードは、Firebase Service層を追加する後続タスクで実装する。
