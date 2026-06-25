@@ -16,6 +16,12 @@
 		000000000000000000000107 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000D03 /* FirebaseFirestore */; };
 		000000000000000000000108 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000D04 /* FirebaseStorage */; };
 		000000000000000000000109 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000208 /* AppDelegate.swift */; };
+		00000000000000000000010A /* TextCategoryModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000209 /* TextCategoryModelTests.swift */; };
+		00000000000000000000010B /* TextCategoryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020A /* TextCategoryModels.swift */; };
+		00000000000000000000010C /* TextCategoryRepositoryBoundaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020B /* TextCategoryRepositoryBoundaryTests.swift */; };
+		00000000000000000000010D /* TextCategoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020C /* TextCategoryRepository.swift */; };
+		00000000000000000000010E /* TextCategoryResultCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020D /* TextCategoryResultCalculatorTests.swift */; };
+		00000000000000000000010F /* TextCategoryResultCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020E /* TextCategoryResultCalculator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +50,12 @@
 		000000000000000000000206 /* SelectBestPhotoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SelectBestPhotoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		000000000000000000000207 /* SelectBestPhotoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SelectBestPhotoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		000000000000000000000208 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		000000000000000000000209 /* TextCategoryModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryModelTests.swift; sourceTree = "<group>"; };
+		00000000000000000000020A /* TextCategoryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryModels.swift; sourceTree = "<group>"; };
+		00000000000000000000020B /* TextCategoryRepositoryBoundaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryRepositoryBoundaryTests.swift; sourceTree = "<group>"; };
+		00000000000000000000020C /* TextCategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryRepository.swift; sourceTree = "<group>"; };
+		00000000000000000000020D /* TextCategoryResultCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultCalculatorTests.swift; sourceTree = "<group>"; };
+		00000000000000000000020E /* TextCategoryResultCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultCalculator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000203 /* SelectBestPhotoTests.swift */,
+				00000000000000000000061C /* TextCategories */,
 			);
 			path = SelectBestPhotoTests;
 			sourceTree = "<group>";
@@ -152,7 +165,14 @@
 			path = Home;
 			sourceTree = "<group>";
 		};
-		00000000000000000000060A /* Models */ = {isa = PBXGroup; children = (); path = Models; sourceTree = "<group>"; };
+		00000000000000000000060A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000061D /* TextCategories */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		00000000000000000000060B /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -164,7 +184,14 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		00000000000000000000060C /* Firebase */ = {isa = PBXGroup; children = (); path = Firebase; sourceTree = "<group>"; };
+		00000000000000000000060C /* Firebase */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000020C /* TextCategoryRepository.swift */,
+			);
+			path = Firebase;
+			sourceTree = "<group>";
+		};
 		00000000000000000000060D /* Media */ = {isa = PBXGroup; children = (); path = Media; sourceTree = "<group>"; };
 		00000000000000000000060E /* Cache */ = {isa = PBXGroup; children = (); path = Cache; sourceTree = "<group>"; };
 		00000000000000000000060F /* Shared */ = {
@@ -189,6 +216,25 @@
 		000000000000000000000619 /* Components */ = {isa = PBXGroup; children = (); path = Components; sourceTree = "<group>"; };
 		00000000000000000000061A /* Extensions */ = {isa = PBXGroup; children = (); path = Extensions; sourceTree = "<group>"; };
 		00000000000000000000061B /* Utilities */ = {isa = PBXGroup; children = (); path = Utilities; sourceTree = "<group>"; };
+		00000000000000000000061C /* TextCategories */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000209 /* TextCategoryModelTests.swift */,
+				00000000000000000000020B /* TextCategoryRepositoryBoundaryTests.swift */,
+				00000000000000000000020D /* TextCategoryResultCalculatorTests.swift */,
+			);
+			path = TextCategories;
+			sourceTree = "<group>";
+		};
+		00000000000000000000061D /* TextCategories */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000020A /* TextCategoryModels.swift */,
+				00000000000000000000020E /* TextCategoryResultCalculator.swift */,
+			);
+			path = TextCategories;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -304,6 +350,9 @@
 				000000000000000000000101 /* SelectBestPhotoApp.swift in Sources */,
 				000000000000000000000102 /* HomeView.swift in Sources */,
 				000000000000000000000109 /* AppDelegate.swift in Sources */,
+				00000000000000000000010B /* TextCategoryModels.swift in Sources */,
+				00000000000000000000010D /* TextCategoryRepository.swift in Sources */,
+				00000000000000000000010F /* TextCategoryResultCalculator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,6 +361,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				000000000000000000000103 /* SelectBestPhotoTests.swift in Sources */,
+				00000000000000000000010A /* TextCategoryModelTests.swift in Sources */,
+				00000000000000000000010C /* TextCategoryRepositoryBoundaryTests.swift in Sources */,
+				00000000000000000000010E /* TextCategoryResultCalculatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

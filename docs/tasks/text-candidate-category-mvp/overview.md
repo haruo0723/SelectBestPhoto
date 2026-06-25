@@ -63,9 +63,9 @@
 
 ### タスク一覧
 
-- [ ] [TASK-0001: テキスト候補型モデルと入力制約を実装する](TASK-0001.md) - 6h (TDD) 🔵
-- [ ] [TASK-0002: Repository境界とPairContextを実装する](TASK-0002.md) - 6h (TDD) 🟡
-- [ ] [TASK-0003: ポイント集計ロジックを実装する](TASK-0003.md) - 6h (TDD) 🔵
+- [x] [TASK-0001: テキスト候補型モデルと入力制約を実装する](TASK-0001.md) - 6h (TDD) 🔵
+- [x] [TASK-0002: Repository境界とPairContextを実装する](TASK-0002.md) - 6h (TDD) 🟡
+- [x] [TASK-0003: ポイント集計ロジックを実装する](TASK-0003.md) - 6h (TDD) 🔵
 
 ### 依存関係
 
