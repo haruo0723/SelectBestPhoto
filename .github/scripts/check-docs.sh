@@ -6,8 +6,8 @@ required_files=(
   "README.md"
   "docs/requirements.md"
   "docs/tech-stack.md"
-  "docs/spec/select-best-photo/acceptance-criteria.md"
-  "docs/design/select-best-photo/architecture.md"
+  "docs/spec/text-candidate-category-mvp/acceptance-criteria.md"
+  "docs/design/text-candidate-category-mvp/architecture.md"
 )
 
 for file in "${required_files[@]}"; do
