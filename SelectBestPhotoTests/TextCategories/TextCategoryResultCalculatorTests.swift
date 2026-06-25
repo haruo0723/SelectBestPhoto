@@ -40,7 +40,15 @@ struct TextCategoryResultCalculatorTests {
 
     @Test func sortsTiesByHighestRankThenCandidateCreationOrder() throws {
         let calculator = TextCategoryResultCalculator(now: { Date(timeIntervalSince1970: 1_800_000_300) })
-        let category = makeCategory(inputRankLimit: 2, revealRankLimit: 3)
+        let category = makeCategory(
+            inputRankLimit: 3,
+            revealRankLimit: 3,
+            pointsByRank: [
+                RankPoint(rank: 1, points: 3),
+                RankPoint(rank: 2, points: 2),
+                RankPoint(rank: 3, points: 1),
+            ]
+        )
         let candidates = [
             makeCandidate(id: "candidate-created-first", name: "作成順1", createdAtOffset: 1),
             makeCandidate(id: "candidate-best-rank", name: "最高順位あり", createdAtOffset: 2),
@@ -50,10 +58,12 @@ struct TextCategoryResultCalculatorTests {
             makeInput(userId: "user-a", selections: [
                 RankedTextSelection(rank: 1, candidateId: "candidate-best-rank"),
                 RankedTextSelection(rank: 2, candidateId: "candidate-created-first"),
+                RankedTextSelection(rank: 3, candidateId: "candidate-created-last"),
             ]),
             makeInput(userId: "user-b", selections: [
                 RankedTextSelection(rank: 1, candidateId: "candidate-created-last"),
                 RankedTextSelection(rank: 2, candidateId: "candidate-created-first"),
+                RankedTextSelection(rank: 3, candidateId: "candidate-best-rank"),
             ]),
         ]
 
@@ -67,7 +77,11 @@ struct TextCategoryResultCalculatorTests {
         #expect(result.entries.map(\.rank) == [1, 2, 3])
     }
 
-    private func makeCategory(inputRankLimit: Int, revealRankLimit: Int) -> TextCategory {
+    private func makeCategory(
+        inputRankLimit: Int,
+        revealRankLimit: Int,
+        pointsByRank: [RankPoint]? = nil
+    ) -> TextCategory {
         TextCategory(
             id: "category-1",
             pairId: "pair-1",
@@ -77,7 +91,7 @@ struct TextCategoryResultCalculatorTests {
             settings: TextCategorySettings(
                 inputRankLimit: inputRankLimit,
                 revealRankLimit: revealRankLimit,
-                pointsByRank: (1 ... inputRankLimit).map { rank in
+                pointsByRank: pointsByRank ?? (1 ... inputRankLimit).map { rank in
                     RankPoint(rank: rank, points: [1: 10, 2: 5, 3: 1][rank] ?? 1)
                 }
             ),
