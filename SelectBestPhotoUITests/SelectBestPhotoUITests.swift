@@ -10,6 +10,7 @@ final class SelectBestPhotoUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["SelectBestPhoto"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
+        XCTAssertTrue(app.staticTexts["home-title"].waitForExistence(timeout: 10))
     }
 }

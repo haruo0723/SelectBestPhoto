@@ -12,6 +12,7 @@ struct HomeView: View {
                 Text("SelectBestPhoto")
                     .font(.title)
                     .fontWeight(.semibold)
+                    .accessibilityIdentifier("home-title")
 
                 Text("月ごとのベスト写真・動画をふたりで選びます。")
                     .font(.body)
