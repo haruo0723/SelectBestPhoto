@@ -119,12 +119,14 @@ enum TextCategoryValidationError: Error, Equatable {
     case invalidInputRankLimit
     case invalidRevealRankLimit
     case invalidRankPoint(rank: Int)
+    case missingRankPoint(rank: Int)
     case duplicateRankPoint(rank: Int)
     case blankCandidateName
     case duplicateCandidateId(String)
     case invalidSelectionRank(Int)
     case duplicateSelectionRank(Int)
     case duplicateSelectedCandidateId(String)
+    case unknownSelectedCandidateId(String)
     case incompleteSelection(expected: Int, actual: Int)
     case generationMismatch(expected: Int, actual: Int)
 }
@@ -161,6 +163,10 @@ enum TextCategoryValidator {
                 throw TextCategoryValidationError.duplicateRankPoint(rank: point.rank)
             }
         }
+
+        for rank in 1 ... settings.inputRankLimit where !seenRanks.contains(rank) {
+            throw TextCategoryValidationError.missingRankPoint(rank: rank)
+        }
     }
 
     static func validate(candidate: TextCandidate) throws {
@@ -182,7 +188,8 @@ enum TextCategoryValidator {
     static func validate(
         input: TextCategoryInput,
         settings: TextCategorySettings,
-        categoryGeneration: Int
+        categoryGeneration: Int,
+        candidateIds: Set<String>? = nil
     ) throws {
         try validate(settings: settings)
 
@@ -207,6 +214,9 @@ enum TextCategoryValidator {
             }
             guard seenCandidateIds.insert(selection.candidateId).inserted else {
                 throw TextCategoryValidationError.duplicateSelectedCandidateId(selection.candidateId)
+            }
+            if let candidateIds, !candidateIds.contains(selection.candidateId) {
+                throw TextCategoryValidationError.unknownSelectedCandidateId(selection.candidateId)
             }
         }
     }

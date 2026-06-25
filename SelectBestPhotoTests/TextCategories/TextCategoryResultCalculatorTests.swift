@@ -77,6 +77,23 @@ struct TextCategoryResultCalculatorTests {
         #expect(result.entries.map(\.rank) == [1, 2, 3])
     }
 
+    @Test func rejectsInputThatSelectsUnknownCandidateId() {
+        let calculator = TextCategoryResultCalculator(now: { Date(timeIntervalSince1970: 1_800_000_300) })
+        let category = makeCategory(inputRankLimit: 1, revealRankLimit: 1)
+        let candidates = [
+            makeCandidate(id: "candidate-a", name: "候補A", createdAtOffset: 1),
+        ]
+        let inputs = [
+            makeInput(userId: "user-a", selections: [
+                RankedTextSelection(rank: 1, candidateId: "missing-candidate"),
+            ]),
+        ]
+
+        #expect(throws: TextCategoryValidationError.unknownSelectedCandidateId("missing-candidate")) {
+            try calculator.calculate(category: category, candidates: candidates, inputs: inputs)
+        }
+    }
+
     private func makeCategory(
         inputRankLimit: Int,
         revealRankLimit: Int,

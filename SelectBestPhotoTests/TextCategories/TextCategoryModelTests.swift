@@ -17,6 +17,7 @@ struct TextCategoryModelTests {
         let invalidInputLimit = TextCategorySettings(inputRankLimit: 0, revealRankLimit: 1, pointsByRank: [RankPoint(rank: 1, points: 1)])
         let invalidRevealLimit = TextCategorySettings(inputRankLimit: 3, revealRankLimit: 4, pointsByRank: [RankPoint(rank: 1, points: 1)])
         let invalidPoints = TextCategorySettings(inputRankLimit: 1, revealRankLimit: 1, pointsByRank: [RankPoint(rank: 1, points: 0)])
+        let missingRankPoint = TextCategorySettings(inputRankLimit: 2, revealRankLimit: 1, pointsByRank: [RankPoint(rank: 1, points: 10)])
 
         #expect(throws: TextCategoryValidationError.self) {
             try TextCategoryValidator.validate(settings: invalidInputLimit)
@@ -26,6 +27,9 @@ struct TextCategoryModelTests {
         }
         #expect(throws: TextCategoryValidationError.self) {
             try TextCategoryValidator.validate(settings: invalidPoints)
+        }
+        #expect(throws: TextCategoryValidationError.missingRankPoint(rank: 2)) {
+            try TextCategoryValidator.validate(settings: missingRankPoint)
         }
     }
 
@@ -69,6 +73,37 @@ struct TextCategoryModelTests {
 
         #expect(throws: TextCategoryValidationError.self) {
             try TextCategoryValidator.validate(input: duplicateSelectionInput, settings: settings, categoryGeneration: 0)
+        }
+    }
+
+    @Test func inputValidationRejectsUnknownSelectedCandidateIdWhenCandidatesAreProvided() {
+        let settings = TextCategorySettings(
+            inputRankLimit: 1,
+            revealRankLimit: 1,
+            pointsByRank: [RankPoint(rank: 1, points: 10)]
+        )
+        let input = TextCategoryInput(
+            id: "user-a",
+            pairId: "pair-1",
+            year: 2026,
+            categoryId: "category-1",
+            userId: "user-a",
+            generation: 0,
+            status: .completed,
+            selections: [
+                RankedTextSelection(rank: 1, candidateId: "missing-candidate"),
+            ],
+            completedAt: Date(),
+            updatedAt: Date()
+        )
+
+        #expect(throws: TextCategoryValidationError.unknownSelectedCandidateId("missing-candidate")) {
+            try TextCategoryValidator.validate(
+                input: input,
+                settings: settings,
+                categoryGeneration: 0,
+                candidateIds: ["candidate-1"]
+            )
         }
     }
 

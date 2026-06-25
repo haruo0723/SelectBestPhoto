@@ -22,11 +22,13 @@ struct TextCategoryResultCalculator: TextCategoryResultCalculating {
     ) throws -> TextCategoryResult {
         try TextCategoryValidator.validate(category: category)
         try TextCategoryValidator.validate(candidates: candidates)
+        let candidateIds = Set(candidates.map(\.id))
         for input in inputs {
             try TextCategoryValidator.validate(
                 input: input,
                 settings: category.settings,
-                categoryGeneration: category.generation
+                categoryGeneration: category.generation,
+                candidateIds: candidateIds
             )
         }
 
