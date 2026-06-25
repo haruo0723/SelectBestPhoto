@@ -1,5 +1,5 @@
-@testable import SelectBestPhoto
 import Foundation
+@testable import SelectBestPhoto
 import Testing
 
 struct TextCategoryResultCalculatorTests {
@@ -11,19 +11,19 @@ struct TextCategoryResultCalculatorTests {
         let candidates = [
             makeCandidate(id: "candidate-a", name: "候補A", createdAtOffset: 1),
             makeCandidate(id: "candidate-b", name: "候補B", createdAtOffset: 2),
-            makeCandidate(id: "candidate-c", name: "候補C", createdAtOffset: 3)
+            makeCandidate(id: "candidate-c", name: "候補C", createdAtOffset: 3),
         ]
         let inputs = [
             makeInput(userId: "user-a", selections: [
                 RankedTextSelection(rank: 1, candidateId: "candidate-a"),
                 RankedTextSelection(rank: 2, candidateId: "candidate-b"),
-                RankedTextSelection(rank: 3, candidateId: "candidate-c")
+                RankedTextSelection(rank: 3, candidateId: "candidate-c"),
             ]),
             makeInput(userId: "user-b", selections: [
                 RankedTextSelection(rank: 1, candidateId: "candidate-b"),
                 RankedTextSelection(rank: 2, candidateId: "candidate-a"),
-                RankedTextSelection(rank: 3, candidateId: "candidate-c")
-            ])
+                RankedTextSelection(rank: 3, candidateId: "candidate-c"),
+            ]),
         ]
 
         let result = try calculator.calculate(category: category, candidates: candidates, inputs: inputs)
@@ -34,7 +34,7 @@ struct TextCategoryResultCalculatorTests {
         #expect(result.entries.map(\.totalPoints) == [15, 15])
         #expect(result.entries[0].userBreakdowns == [
             TextCategoryUserPointBreakdown(userId: "user-a", selectedRank: 1, points: 10),
-            TextCategoryUserPointBreakdown(userId: "user-b", selectedRank: 2, points: 5)
+            TextCategoryUserPointBreakdown(userId: "user-b", selectedRank: 2, points: 5),
         ])
     }
 
@@ -44,17 +44,17 @@ struct TextCategoryResultCalculatorTests {
         let candidates = [
             makeCandidate(id: "candidate-created-first", name: "作成順1", createdAtOffset: 1),
             makeCandidate(id: "candidate-best-rank", name: "最高順位あり", createdAtOffset: 2),
-            makeCandidate(id: "candidate-created-last", name: "作成順3", createdAtOffset: 3)
+            makeCandidate(id: "candidate-created-last", name: "作成順3", createdAtOffset: 3),
         ]
         let inputs = [
             makeInput(userId: "user-a", selections: [
                 RankedTextSelection(rank: 1, candidateId: "candidate-best-rank"),
-                RankedTextSelection(rank: 2, candidateId: "candidate-created-first")
+                RankedTextSelection(rank: 2, candidateId: "candidate-created-first"),
             ]),
             makeInput(userId: "user-b", selections: [
                 RankedTextSelection(rank: 1, candidateId: "candidate-created-last"),
-                RankedTextSelection(rank: 2, candidateId: "candidate-created-first")
-            ])
+                RankedTextSelection(rank: 2, candidateId: "candidate-created-first"),
+            ]),
         ]
 
         let result = try calculator.calculate(category: category, candidates: candidates, inputs: inputs)
@@ -62,7 +62,7 @@ struct TextCategoryResultCalculatorTests {
         #expect(result.entries.map(\.candidateId) == [
             "candidate-best-rank",
             "candidate-created-last",
-            "candidate-created-first"
+            "candidate-created-first",
         ])
         #expect(result.entries.map(\.rank) == [1, 2, 3])
     }
@@ -77,7 +77,7 @@ struct TextCategoryResultCalculatorTests {
             settings: TextCategorySettings(
                 inputRankLimit: inputRankLimit,
                 revealRankLimit: revealRankLimit,
-                pointsByRank: (1...inputRankLimit).map { rank in
+                pointsByRank: (1 ... inputRankLimit).map { rank in
                     RankPoint(rank: rank, points: [1: 10, 2: 5, 3: 1][rank] ?? 1)
                 }
             ),

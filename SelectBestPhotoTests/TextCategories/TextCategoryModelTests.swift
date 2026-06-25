@@ -1,5 +1,5 @@
-@testable import SelectBestPhoto
 import Foundation
+@testable import SelectBestPhoto
 import Testing
 
 struct TextCategoryModelTests {
@@ -7,7 +7,7 @@ struct TextCategoryModelTests {
         let settings = TextCategorySettings(
             inputRankLimit: 50,
             revealRankLimit: 50,
-            pointsByRank: (1...50).map { RankPoint(rank: $0, points: 51 - $0) }
+            pointsByRank: (1 ... 50).map { RankPoint(rank: $0, points: 51 - $0) }
         )
 
         try TextCategoryValidator.validate(settings: settings)
@@ -61,7 +61,7 @@ struct TextCategoryModelTests {
             status: .completed,
             selections: [
                 RankedTextSelection(rank: 1, candidateId: "candidate-1"),
-                RankedTextSelection(rank: 2, candidateId: "candidate-1")
+                RankedTextSelection(rank: 2, candidateId: "candidate-1"),
             ],
             completedAt: Date(),
             updatedAt: Date()
@@ -82,7 +82,7 @@ struct TextCategoryModelTests {
             settings: TextCategorySettings(inputRankLimit: 3, revealRankLimit: 2, pointsByRank: [
                 RankPoint(rank: 1, points: 10),
                 RankPoint(rank: 2, points: 5),
-                RankPoint(rank: 3, points: 1)
+                RankPoint(rank: 3, points: 1),
             ]),
             generation: 0,
             createdByUserId: "user-a",

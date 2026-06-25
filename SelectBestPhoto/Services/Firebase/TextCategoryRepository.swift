@@ -1,6 +1,6 @@
 import Foundation
 
-struct PairContext: Equatable, Sendable {
+struct PairContext: Equatable {
     var pairId: String
     var userId: String
 }
@@ -27,7 +27,7 @@ protocol TextCategoryRepository: Sendable {
     func saveResultIfNeeded(_ result: TextCategoryResult) async throws
 }
 
-struct TextCategoryResultContext: Sendable, Equatable {
+struct TextCategoryResultContext: Equatable {
     var category: TextCategory
     var candidates: [TextCandidate]
     var inputs: [TextCategoryInput]

@@ -1,15 +1,42 @@
-@testable import SelectBestPhoto
 import Foundation
+@testable import SelectBestPhoto
 import Testing
 
 struct TextCategoryRepositoryBoundaryTests {
     @Test func firestorePathBuilderCreatesSchemaCompatibleRelativePaths() {
         #expect(TextCategoryFirestorePath.year(pairId: "pair-1", year: 2026) == "pairs/pair-1/years/2026")
-        #expect(TextCategoryFirestorePath.category(pairId: "pair-1", year: 2026, categoryId: "category-1") == "pairs/pair-1/years/2026/textCategories/category-1")
-        #expect(TextCategoryFirestorePath.candidates(pairId: "pair-1", year: 2026, categoryId: "category-1") == "pairs/pair-1/years/2026/textCategories/category-1/candidates")
-        #expect(TextCategoryFirestorePath.candidate(pairId: "pair-1", year: 2026, categoryId: "category-1", candidateId: "candidate-1") == "pairs/pair-1/years/2026/textCategories/category-1/candidates/candidate-1")
-        #expect(TextCategoryFirestorePath.input(pairId: "pair-1", year: 2026, categoryId: "category-1", userId: "user-a") == "pairs/pair-1/years/2026/textCategories/category-1/inputs/user-a")
-        #expect(TextCategoryFirestorePath.result(pairId: "pair-1", year: 2026, categoryId: "category-1", resultId: "result-1") == "pairs/pair-1/years/2026/textCategories/category-1/results/result-1")
+        #expect(
+            TextCategoryFirestorePath.category(pairId: "pair-1", year: 2026, categoryId: "category-1")
+                == "pairs/pair-1/years/2026/textCategories/category-1"
+        )
+        #expect(
+            TextCategoryFirestorePath.candidates(pairId: "pair-1", year: 2026, categoryId: "category-1")
+                == "pairs/pair-1/years/2026/textCategories/category-1/candidates"
+        )
+        #expect(
+            TextCategoryFirestorePath.candidate(
+                pairId: "pair-1",
+                year: 2026,
+                categoryId: "category-1",
+                candidateId: "candidate-1"
+            ) == "pairs/pair-1/years/2026/textCategories/category-1/candidates/candidate-1"
+        )
+        #expect(
+            TextCategoryFirestorePath.input(
+                pairId: "pair-1",
+                year: 2026,
+                categoryId: "category-1",
+                userId: "user-a"
+            ) == "pairs/pair-1/years/2026/textCategories/category-1/inputs/user-a"
+        )
+        #expect(
+            TextCategoryFirestorePath.result(
+                pairId: "pair-1",
+                year: 2026,
+                categoryId: "category-1",
+                resultId: "result-1"
+            ) == "pairs/pair-1/years/2026/textCategories/category-1/results/result-1"
+        )
     }
 
     @Test func pairContextProviderCanBeReplacedInTests() async throws {
@@ -73,36 +100,36 @@ private final class FakeTextCategoryRepository: TextCategoryRepository, @uncheck
         }
     }
 
-    func createCategory(_ category: TextCategory) async throws {}
+    func createCategory(_: TextCategory) async throws {}
 
-    func updateDraftCategory(_ category: TextCategory) async throws {}
+    func updateDraftCategory(_: TextCategory) async throws {}
 
-    func confirmCategory(pairId: String, year: Int, categoryId: String) async throws {
+    func confirmCategory(pairId _: String, year _: Int, categoryId: String) async throws {
         confirmedCategoryIds.append(categoryId)
     }
 
-    func resetCategory(pairId: String, year: Int, categoryId: String) async throws {}
+    func resetCategory(pairId _: String, year _: Int, categoryId _: String) async throws {}
 
-    func observeCandidates(pairId: String, year: Int, categoryId: String) -> AsyncThrowingStream<[TextCandidate], Error> {
+    func observeCandidates(pairId _: String, year _: Int, categoryId _: String) -> AsyncThrowingStream<[TextCandidate], Error> {
         AsyncThrowingStream { continuation in
             continuation.yield([])
             continuation.finish()
         }
     }
 
-    func addCandidate(_ candidate: TextCandidate) async throws {}
+    func addCandidate(_: TextCandidate) async throws {}
 
-    func updateCandidate(_ candidate: TextCandidate) async throws {}
+    func updateCandidate(_: TextCandidate) async throws {}
 
-    func deleteCandidate(pairId: String, year: Int, categoryId: String, candidateId: String) async throws {}
+    func deleteCandidate(pairId _: String, year _: Int, categoryId _: String, candidateId _: String) async throws {}
 
-    func saveInput(_ input: TextCategoryInput) async throws {}
+    func saveInput(_: TextCategoryInput) async throws {}
 
-    func completeInput(_ input: TextCategoryInput) async throws {}
+    func completeInput(_: TextCategoryInput) async throws {}
 
-    func loadResultContext(pairId: String, year: Int, categoryId: String) async throws -> TextCategoryResultContext {
+    func loadResultContext(pairId _: String, year _: Int, categoryId _: String) async throws -> TextCategoryResultContext {
         TextCategoryResultContext(category: categories[0], candidates: [], inputs: [])
     }
 
-    func saveResultIfNeeded(_ result: TextCategoryResult) async throws {}
+    func saveResultIfNeeded(_: TextCategoryResult) async throws {}
 }

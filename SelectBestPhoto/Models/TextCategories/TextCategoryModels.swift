@@ -1,18 +1,18 @@
 import Foundation
 
-enum InputStatus: String, Codable, Sendable, Equatable {
+enum InputStatus: String, Codable, Equatable {
     case notStarted
     case inProgress
     case completed
 }
 
-enum TextCategoryStatus: String, Codable, Sendable, Equatable {
+enum TextCategoryStatus: String, Codable, Equatable {
     case draft
     case confirmed
     case resultAvailable
 }
 
-struct TextCategory: Codable, Identifiable, Sendable, Equatable {
+struct TextCategory: Codable, Identifiable, Equatable {
     var id: String
     var pairId: String
     var year: Int
@@ -26,19 +26,22 @@ struct TextCategory: Codable, Identifiable, Sendable, Equatable {
     var updatedAt: Date
 }
 
-struct TextCategorySettings: Codable, Equatable, Sendable {
+struct TextCategorySettings: Codable, Equatable {
     var inputRankLimit: Int
     var revealRankLimit: Int
     var pointsByRank: [RankPoint]
 }
 
-struct RankPoint: Codable, Identifiable, Equatable, Sendable {
-    var id: Int { rank }
+struct RankPoint: Codable, Identifiable, Equatable {
+    var id: Int {
+        rank
+    }
+
     var rank: Int
     var points: Int
 }
 
-struct TextCandidate: Codable, Identifiable, Sendable, Equatable {
+struct TextCandidate: Codable, Identifiable, Equatable {
     var id: String
     var pairId: String
     var year: Int
@@ -50,12 +53,12 @@ struct TextCandidate: Codable, Identifiable, Sendable, Equatable {
     var updatedAt: Date
 }
 
-enum TextCandidateImagePlaceholderKind: String, Codable, Sendable, Equatable {
+enum TextCandidateImagePlaceholderKind: String, Codable, Equatable {
     case none
     case futureImageSlot
 }
 
-struct TextCategoryInput: Codable, Identifiable, Sendable, Equatable {
+struct TextCategoryInput: Codable, Identifiable, Equatable {
     var id: String
     var pairId: String
     var year: Int
@@ -68,7 +71,7 @@ struct TextCategoryInput: Codable, Identifiable, Sendable, Equatable {
     var updatedAt: Date
 }
 
-struct RankedTextSelection: Codable, Identifiable, Equatable, Sendable {
+struct RankedTextSelection: Codable, Identifiable, Equatable {
     var id: String
     var rank: Int
     var candidateId: String
@@ -80,7 +83,7 @@ struct RankedTextSelection: Codable, Identifiable, Equatable, Sendable {
     }
 }
 
-struct TextCategoryResult: Codable, Identifiable, Sendable, Equatable {
+struct TextCategoryResult: Codable, Identifiable, Equatable {
     var id: String
     var pairId: String
     var year: Int
@@ -91,7 +94,7 @@ struct TextCategoryResult: Codable, Identifiable, Sendable, Equatable {
     var createdAt: Date
 }
 
-struct TextCategoryResultEntry: Codable, Identifiable, Sendable, Equatable {
+struct TextCategoryResultEntry: Codable, Identifiable, Equatable {
     var id: String
     var rank: Int
     var candidateId: String
@@ -101,14 +104,17 @@ struct TextCategoryResultEntry: Codable, Identifiable, Sendable, Equatable {
     var imagePlaceholderKind: TextCandidateImagePlaceholderKind
 }
 
-struct TextCategoryUserPointBreakdown: Codable, Identifiable, Sendable, Equatable {
-    var id: String { userId }
+struct TextCategoryUserPointBreakdown: Codable, Identifiable, Equatable {
+    var id: String {
+        userId
+    }
+
     var userId: String
     var selectedRank: Int?
     var points: Int
 }
 
-enum TextCategoryValidationError: Error, Equatable, Sendable {
+enum TextCategoryValidationError: Error, Equatable {
     case blankCategoryName
     case invalidInputRankLimit
     case invalidRevealRankLimit
@@ -124,7 +130,7 @@ enum TextCategoryValidationError: Error, Equatable, Sendable {
 }
 
 enum TextCategoryValidator {
-    static let rankLimitRange = 1...50
+    static let rankLimitRange = 1 ... 50
 
     static func validate(category: TextCategory) throws {
         if category.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -193,7 +199,7 @@ enum TextCategoryValidator {
         var seenRanks: Set<Int> = []
         var seenCandidateIds: Set<String> = []
         for selection in input.selections {
-            guard 1...settings.inputRankLimit ~= selection.rank else {
+            guard 1 ... settings.inputRankLimit ~= selection.rank else {
                 throw TextCategoryValidationError.invalidSelectionRank(selection.rank)
             }
             guard seenRanks.insert(selection.rank).inserted else {
