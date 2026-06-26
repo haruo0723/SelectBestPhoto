@@ -42,7 +42,7 @@
 ## 全体進捗
 
 - [ ] Phase 1: ドメイン基盤
-- [x] Phase 2: Firestore同期
+- [ ] Phase 2: Firestore同期
 - [ ] Phase 3: SwiftUI UI
 - [ ] Phase 4: 統合検証
 
@@ -84,9 +84,9 @@ TASK-0001 -> TASK-0003
 
 ### タスク一覧
 
-- [x] [TASK-0004: 部門・候補のFirestore Repositoryを実装する](TASK-0004.md) - 8h (TDD) 🔵
-- [x] [TASK-0005: 入力・結果・リセットのFirestore Repositoryを実装する](TASK-0005.md) - 8h (TDD) 🔵
-- [x] [TASK-0006: Firestore Security RulesとRulesテストを実装する](TASK-0006.md) - 8h (TDD) 🔵
+- [ ] [TASK-0004: 部門・候補のFirestore Repositoryを実装する](TASK-0004.md) - 8h (TDD) 🔵
+- [ ] [TASK-0005: 入力・結果・リセットのFirestore Repositoryを実装する](TASK-0005.md) - 8h (TDD) 🔵
+- [ ] [TASK-0006: Firestore Security RulesとRulesテストを実装する](TASK-0006.md) - 8h (TDD) 🔵
 
 ### 依存関係
 
