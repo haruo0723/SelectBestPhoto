@@ -1,5 +1,5 @@
-import Foundation
 @preconcurrency import FirebaseFirestore
+import Foundation
 
 struct PairContext: Equatable {
     var pairId: String
@@ -434,7 +434,7 @@ private extension FirestoreTextCategoryRepository {
             throw TextCategoryRepositoryError.invalidDocument(document.reference.path)
         }
 
-        return TextCategory(
+        return try TextCategory(
             id: document.documentID,
             pairId: pairId,
             year: year,
@@ -443,13 +443,13 @@ private extension FirestoreTextCategoryRepository {
             settings: TextCategorySettings(
                 inputRankLimit: inputRankLimit,
                 revealRankLimit: revealRankLimit,
-                pointsByRank: try pointsData.map(decodeRankPoint)
+                pointsByRank: pointsData.map(decodeRankPoint)
             ),
             generation: generation,
             createdByUserId: createdByUserId,
-            confirmedAt: try optionalDate(data["confirmedAt"], path: document.reference.path),
-            createdAt: try requiredDate(data["createdAt"], path: document.reference.path),
-            updatedAt: try requiredDate(data["updatedAt"], path: document.reference.path)
+            confirmedAt: optionalDate(data["confirmedAt"], path: document.reference.path),
+            createdAt: requiredDate(data["createdAt"], path: document.reference.path),
+            updatedAt: requiredDate(data["updatedAt"], path: document.reference.path)
         )
     }
 
@@ -480,7 +480,7 @@ private extension FirestoreTextCategoryRepository {
             throw TextCategoryRepositoryError.invalidDocument(document.reference.path)
         }
 
-        return TextCandidate(
+        return try TextCandidate(
             id: document.documentID,
             pairId: pairId,
             year: year,
@@ -488,8 +488,8 @@ private extension FirestoreTextCategoryRepository {
             name: name,
             imagePlaceholderKind: imagePlaceholderKind,
             createdByUserId: createdByUserId,
-            createdAt: try requiredDate(data["createdAt"], path: document.reference.path),
-            updatedAt: try requiredDate(data["updatedAt"], path: document.reference.path)
+            createdAt: requiredDate(data["createdAt"], path: document.reference.path),
+            updatedAt: requiredDate(data["updatedAt"], path: document.reference.path)
         )
     }
 
@@ -525,7 +525,7 @@ private extension FirestoreTextCategoryRepository {
             throw TextCategoryRepositoryError.invalidDocument(document.reference.path)
         }
 
-        return TextCategoryInput(
+        return try TextCategoryInput(
             id: document.documentID,
             pairId: pairId,
             year: year,
@@ -533,9 +533,9 @@ private extension FirestoreTextCategoryRepository {
             userId: userId,
             generation: generation,
             status: status,
-            selections: try selectionsData.map(decodeSelection),
-            completedAt: try optionalDate(data["completedAt"], path: document.reference.path),
-            updatedAt: try requiredDate(data["updatedAt"], path: document.reference.path)
+            selections: selectionsData.map(decodeSelection),
+            completedAt: optionalDate(data["completedAt"], path: document.reference.path),
+            updatedAt: requiredDate(data["updatedAt"], path: document.reference.path)
         )
     }
 
@@ -564,15 +564,15 @@ private extension FirestoreTextCategoryRepository {
             throw TextCategoryRepositoryError.invalidDocument(document.reference.path)
         }
 
-        return TextCategoryResult(
+        return try TextCategoryResult(
             id: document.documentID,
             pairId: pairId,
             year: year,
             categoryId: categoryId,
             generation: generation,
-            entries: try entriesData.map(decodeResultEntry),
+            entries: entriesData.map(decodeResultEntry),
             sourceUserIds: sourceUserIds,
-            createdAt: try requiredDate(data["createdAt"], path: document.reference.path)
+            createdAt: requiredDate(data["createdAt"], path: document.reference.path)
         )
     }
 
@@ -621,13 +621,13 @@ private extension FirestoreTextCategoryRepository {
         else {
             throw TextCategoryRepositoryError.invalidDocument("entries")
         }
-        return TextCategoryResultEntry(
+        return try TextCategoryResultEntry(
             id: candidateId,
             rank: rank,
             candidateId: candidateId,
             candidateName: candidateName,
             totalPoints: totalPoints,
-            userBreakdowns: try userBreakdownsData.map(decodeUserBreakdown),
+            userBreakdowns: userBreakdownsData.map(decodeUserBreakdown),
             imagePlaceholderKind: imagePlaceholderKind
         )
     }
