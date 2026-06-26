@@ -2,6 +2,511 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function pairPath(pairId) {
+      return /databases/$(database)/documents/pairs/$(pairId);
+    }
+
+    function pairData(pairId) {
+      return get(pairPath(pairId)).data;
+    }
+
+    function isPairMember(pairId) {
+      return signedIn()
+        && exists(pairPath(pairId))
+        && pairData(pairId).memberIds is list
+        && pairData(pairId).memberIds.hasAny([request.auth.uid]);
+    }
+
+    function pairHasTwoMembers(pairId) {
+      return pairData(pairId).memberIds is list
+        && pairData(pairId).memberIds.size() == 2;
+    }
+
+    function categoryPath(pairId, year, categoryId) {
+      return /databases/$(database)/documents/pairs/$(pairId)/years/$(year)/textCategories/$(categoryId);
+    }
+
+    function categoryData(pairId, year, categoryId) {
+      return get(categoryPath(pairId, year, categoryId)).data;
+    }
+
+    function categoryExists(pairId, year, categoryId) {
+      return exists(categoryPath(pairId, year, categoryId));
+    }
+
+    function isCategoryDraft(pairId, year, categoryId) {
+      return categoryExists(pairId, year, categoryId)
+        && categoryData(pairId, year, categoryId).status == 'draft';
+    }
+
+    function inputPath(pairId, year, categoryId, userId) {
+      return /databases/$(database)/documents/pairs/$(pairId)/years/$(year)/textCategories/$(categoryId)/inputs/$(userId);
+    }
+
+    function completedCurrentInput(pairId, year, categoryId, userId) {
+      return exists(inputPath(pairId, year, categoryId, userId))
+        && get(inputPath(pairId, year, categoryId, userId)).data.status == 'completed'
+        && get(inputPath(pairId, year, categoryId, userId)).data.generation == categoryData(pairId, year, categoryId).generation;
+    }
+
+    function bothInputsCompleted(pairId, year, categoryId) {
+      return isPairMember(pairId)
+        && pairHasTwoMembers(pairId)
+        && categoryExists(pairId, year, categoryId)
+        && completedCurrentInput(pairId, year, categoryId, pairData(pairId).memberIds[0])
+        && completedCurrentInput(pairId, year, categoryId, pairData(pairId).memberIds[1]);
+    }
+
+    function validTimestampOrMissing(data, field) {
+      return !(field in data) || data[field] is timestamp;
+    }
+
+    function validRankLimit(value) {
+      return value is int && value >= 1 && value <= 50;
+    }
+
+    function validCategoryData(data, pairId, year) {
+      return data.keys().hasOnly([
+          'pairId',
+          'year',
+          'name',
+          'status',
+          'inputRankLimit',
+          'revealRankLimit',
+          'pointsByRank',
+          'generation',
+          'createdByUserId',
+          'confirmedAt',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'pairId',
+          'year',
+          'name',
+          'status',
+          'inputRankLimit',
+          'revealRankLimit',
+          'pointsByRank',
+          'generation',
+          'createdByUserId',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.pairId == pairId
+        && data.year is int
+        && data.year == int(year)
+        && data.name is string
+        && data.name.size() > 0
+        && data.status in ['draft', 'confirmed', 'resultAvailable']
+        && validRankLimit(data.inputRankLimit)
+        && validRankLimit(data.revealRankLimit)
+        && data.revealRankLimit <= data.inputRankLimit
+        && data.pointsByRank is list
+        && data.pointsByRank.size() >= data.inputRankLimit
+        && data.pointsByRank.size() <= 50
+        && data.generation is int
+        && data.generation >= 0
+        && data.createdByUserId is string
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp
+        && validTimestampOrMissing(data, 'confirmedAt');
+    }
+
+    function isResetCategoryUpdate() {
+      return request.resource.data.status == 'draft'
+        && resource.data.status in ['confirmed', 'resultAvailable']
+        && request.resource.data.generation == resource.data.generation + 1
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status',
+          'generation',
+          'confirmedAt',
+          'updatedAt'
+        ]);
+    }
+
+    function isResultStatusUpdate() {
+      return request.resource.data.status == 'resultAvailable'
+        && resource.data.status in ['confirmed', 'resultAvailable']
+        && request.resource.data.generation == resource.data.generation
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status',
+          'updatedAt'
+        ]);
+    }
+
+    function isDraftCategoryUpdate() {
+      return resource.data.status == 'draft'
+        && request.resource.data.status == 'draft'
+        && request.resource.data.generation == resource.data.generation;
+    }
+
+    function isConfirmCategoryUpdate() {
+      return resource.data.status == 'draft'
+        && request.resource.data.status == 'confirmed'
+        && request.resource.data.generation == resource.data.generation
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status',
+          'confirmedAt',
+          'updatedAt'
+        ]);
+    }
+
+    function validCandidateData(data, pairId, year, categoryId) {
+      return data.keys().hasOnly([
+          'pairId',
+          'year',
+          'categoryId',
+          'name',
+          'imagePlaceholderKind',
+          'createdByUserId',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'pairId',
+          'year',
+          'categoryId',
+          'name',
+          'imagePlaceholderKind',
+          'createdByUserId',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.pairId == pairId
+        && data.year is int
+        && data.year == int(year)
+        && data.categoryId == categoryId
+        && data.name is string
+        && data.name.size() > 0
+        && data.imagePlaceholderKind in ['none', 'futureImageSlot']
+        && data.createdByUserId is string
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function validSelection(selection) {
+      return selection is map
+        && selection.keys().hasOnly(['rank', 'candidateId'])
+        && selection.keys().hasAll(['rank', 'candidateId'])
+        && selection.rank is int
+        && selection.rank >= 1
+        && selection.rank <= 50
+        && selection.candidateId is string
+        && selection.candidateId.size() > 0;
+    }
+
+    function validSelections(selections) {
+      return (selections.size() < 1 || validSelection(selections[0]))
+        && (selections.size() < 2 || validSelection(selections[1]))
+        && (selections.size() < 3 || validSelection(selections[2]))
+        && (selections.size() < 4 || validSelection(selections[3]))
+        && (selections.size() < 5 || validSelection(selections[4]))
+        && (selections.size() < 6 || validSelection(selections[5]))
+        && (selections.size() < 7 || validSelection(selections[6]))
+        && (selections.size() < 8 || validSelection(selections[7]))
+        && (selections.size() < 9 || validSelection(selections[8]))
+        && (selections.size() < 10 || validSelection(selections[9]))
+        && (selections.size() < 11 || validSelection(selections[10]))
+        && (selections.size() < 12 || validSelection(selections[11]))
+        && (selections.size() < 13 || validSelection(selections[12]))
+        && (selections.size() < 14 || validSelection(selections[13]))
+        && (selections.size() < 15 || validSelection(selections[14]))
+        && (selections.size() < 16 || validSelection(selections[15]))
+        && (selections.size() < 17 || validSelection(selections[16]))
+        && (selections.size() < 18 || validSelection(selections[17]))
+        && (selections.size() < 19 || validSelection(selections[18]))
+        && (selections.size() < 20 || validSelection(selections[19]))
+        && (selections.size() < 21 || validSelection(selections[20]))
+        && (selections.size() < 22 || validSelection(selections[21]))
+        && (selections.size() < 23 || validSelection(selections[22]))
+        && (selections.size() < 24 || validSelection(selections[23]))
+        && (selections.size() < 25 || validSelection(selections[24]))
+        && (selections.size() < 26 || validSelection(selections[25]))
+        && (selections.size() < 27 || validSelection(selections[26]))
+        && (selections.size() < 28 || validSelection(selections[27]))
+        && (selections.size() < 29 || validSelection(selections[28]))
+        && (selections.size() < 30 || validSelection(selections[29]))
+        && (selections.size() < 31 || validSelection(selections[30]))
+        && (selections.size() < 32 || validSelection(selections[31]))
+        && (selections.size() < 33 || validSelection(selections[32]))
+        && (selections.size() < 34 || validSelection(selections[33]))
+        && (selections.size() < 35 || validSelection(selections[34]))
+        && (selections.size() < 36 || validSelection(selections[35]))
+        && (selections.size() < 37 || validSelection(selections[36]))
+        && (selections.size() < 38 || validSelection(selections[37]))
+        && (selections.size() < 39 || validSelection(selections[38]))
+        && (selections.size() < 40 || validSelection(selections[39]))
+        && (selections.size() < 41 || validSelection(selections[40]))
+        && (selections.size() < 42 || validSelection(selections[41]))
+        && (selections.size() < 43 || validSelection(selections[42]))
+        && (selections.size() < 44 || validSelection(selections[43]))
+        && (selections.size() < 45 || validSelection(selections[44]))
+        && (selections.size() < 46 || validSelection(selections[45]))
+        && (selections.size() < 47 || validSelection(selections[46]))
+        && (selections.size() < 48 || validSelection(selections[47]))
+        && (selections.size() < 49 || validSelection(selections[48]))
+        && (selections.size() < 50 || validSelection(selections[49]));
+    }
+
+    function completedInputIsValid(data, pairId, year, categoryId) {
+      return data.status != 'completed'
+        || (
+          data.completedAt is timestamp
+          && data.selections.size() == categoryData(pairId, year, categoryId).inputRankLimit
+        );
+    }
+
+    function validInputData(data, pairId, year, categoryId, userId) {
+      return data.keys().hasOnly([
+          'pairId',
+          'year',
+          'categoryId',
+          'userId',
+          'generation',
+          'status',
+          'selections',
+          'completedAt',
+          'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'pairId',
+          'year',
+          'categoryId',
+          'userId',
+          'generation',
+          'status',
+          'selections',
+          'updatedAt'
+        ])
+        && data.pairId == pairId
+        && data.year == int(year)
+        && data.categoryId == categoryId
+        && data.userId == userId
+        && data.userId == request.auth.uid
+        && data.generation is int
+        && data.generation == categoryData(pairId, year, categoryId).generation
+        && data.status in ['notStarted', 'inProgress', 'completed']
+        && data.selections is list
+        && data.selections.size() <= 50
+        && validSelections(data.selections)
+        && completedInputIsValid(data, pairId, year, categoryId)
+        && data.updatedAt is timestamp
+        && validTimestampOrMissing(data, 'completedAt');
+    }
+
+    function validUserBreakdown(breakdown, pairId) {
+      return breakdown is map
+        && breakdown.keys().hasOnly(['userId', 'selectedRank', 'points'])
+        && breakdown.keys().hasAll(['userId', 'points'])
+        && breakdown.userId is string
+        && breakdown.userId in pairData(pairId).memberIds
+        && (!(('selectedRank') in breakdown) || breakdown.selectedRank is int)
+        && (!(('selectedRank') in breakdown) || (breakdown.selectedRank >= 1 && breakdown.selectedRank <= 50))
+        && breakdown.points is int
+        && breakdown.points >= 0;
+    }
+
+    function validResultEntry(entry, pairId) {
+      return entry is map
+        && entry.keys().hasOnly([
+          'rank',
+          'candidateId',
+          'candidateName',
+          'totalPoints',
+          'userBreakdowns',
+          'imagePlaceholderKind'
+        ])
+        && entry.keys().hasAll([
+          'rank',
+          'candidateId',
+          'candidateName',
+          'totalPoints',
+          'userBreakdowns',
+          'imagePlaceholderKind'
+        ])
+        && entry.rank is int
+        && entry.rank >= 1
+        && entry.rank <= 50
+        && entry.candidateId is string
+        && entry.candidateName is string
+        && entry.totalPoints is int
+        && entry.totalPoints >= 0
+        && entry.userBreakdowns is list
+        && entry.userBreakdowns.size() <= 2
+        && (entry.userBreakdowns.size() < 1 || validUserBreakdown(entry.userBreakdowns[0], pairId))
+        && (entry.userBreakdowns.size() < 2 || validUserBreakdown(entry.userBreakdowns[1], pairId))
+        && entry.imagePlaceholderKind in ['none', 'futureImageSlot'];
+    }
+
+    function validResultEntriesUpTo10(entries, pairId) {
+      return (entries.size() < 1 || validResultEntry(entries[0], pairId))
+        && (entries.size() < 2 || validResultEntry(entries[1], pairId))
+        && (entries.size() < 3 || validResultEntry(entries[2], pairId))
+        && (entries.size() < 4 || validResultEntry(entries[3], pairId))
+        && (entries.size() < 5 || validResultEntry(entries[4], pairId))
+        && (entries.size() < 6 || validResultEntry(entries[5], pairId))
+        && (entries.size() < 7 || validResultEntry(entries[6], pairId))
+        && (entries.size() < 8 || validResultEntry(entries[7], pairId))
+        && (entries.size() < 9 || validResultEntry(entries[8], pairId))
+        && (entries.size() < 10 || validResultEntry(entries[9], pairId));
+    }
+
+    function validResultEntriesUpTo20(entries, pairId) {
+      return validResultEntriesUpTo10(entries, pairId)
+        && (entries.size() < 11 || validResultEntry(entries[10], pairId))
+        && (entries.size() < 12 || validResultEntry(entries[11], pairId))
+        && (entries.size() < 13 || validResultEntry(entries[12], pairId))
+        && (entries.size() < 14 || validResultEntry(entries[13], pairId))
+        && (entries.size() < 15 || validResultEntry(entries[14], pairId))
+        && (entries.size() < 16 || validResultEntry(entries[15], pairId))
+        && (entries.size() < 17 || validResultEntry(entries[16], pairId))
+        && (entries.size() < 18 || validResultEntry(entries[17], pairId))
+        && (entries.size() < 19 || validResultEntry(entries[18], pairId))
+        && (entries.size() < 20 || validResultEntry(entries[19], pairId));
+    }
+
+    function validResultEntriesUpTo30(entries, pairId) {
+      return validResultEntriesUpTo20(entries, pairId)
+        && (entries.size() < 21 || validResultEntry(entries[20], pairId))
+        && (entries.size() < 22 || validResultEntry(entries[21], pairId))
+        && (entries.size() < 23 || validResultEntry(entries[22], pairId))
+        && (entries.size() < 24 || validResultEntry(entries[23], pairId))
+        && (entries.size() < 25 || validResultEntry(entries[24], pairId))
+        && (entries.size() < 26 || validResultEntry(entries[25], pairId))
+        && (entries.size() < 27 || validResultEntry(entries[26], pairId))
+        && (entries.size() < 28 || validResultEntry(entries[27], pairId))
+        && (entries.size() < 29 || validResultEntry(entries[28], pairId))
+        && (entries.size() < 30 || validResultEntry(entries[29], pairId));
+    }
+
+    function validResultEntriesUpTo40(entries, pairId) {
+      return validResultEntriesUpTo30(entries, pairId)
+        && (entries.size() < 31 || validResultEntry(entries[30], pairId))
+        && (entries.size() < 32 || validResultEntry(entries[31], pairId))
+        && (entries.size() < 33 || validResultEntry(entries[32], pairId))
+        && (entries.size() < 34 || validResultEntry(entries[33], pairId))
+        && (entries.size() < 35 || validResultEntry(entries[34], pairId))
+        && (entries.size() < 36 || validResultEntry(entries[35], pairId))
+        && (entries.size() < 37 || validResultEntry(entries[36], pairId))
+        && (entries.size() < 38 || validResultEntry(entries[37], pairId))
+        && (entries.size() < 39 || validResultEntry(entries[38], pairId))
+        && (entries.size() < 40 || validResultEntry(entries[39], pairId));
+    }
+
+    function validResultEntriesUpTo50(entries, pairId) {
+      return validResultEntriesUpTo40(entries, pairId)
+        && (entries.size() < 41 || validResultEntry(entries[40], pairId))
+        && (entries.size() < 42 || validResultEntry(entries[41], pairId))
+        && (entries.size() < 43 || validResultEntry(entries[42], pairId))
+        && (entries.size() < 44 || validResultEntry(entries[43], pairId))
+        && (entries.size() < 45 || validResultEntry(entries[44], pairId))
+        && (entries.size() < 46 || validResultEntry(entries[45], pairId))
+        && (entries.size() < 47 || validResultEntry(entries[46], pairId))
+        && (entries.size() < 48 || validResultEntry(entries[47], pairId))
+        && (entries.size() < 49 || validResultEntry(entries[48], pairId))
+        && (entries.size() < 50 || validResultEntry(entries[49], pairId));
+    }
+
+    function validResultEntries(entries, pairId) {
+      return entries.size() <= 10
+        ? validResultEntriesUpTo10(entries, pairId)
+        : entries.size() <= 20
+          ? validResultEntriesUpTo20(entries, pairId)
+          : entries.size() <= 30
+            ? validResultEntriesUpTo30(entries, pairId)
+            : entries.size() <= 40
+              ? validResultEntriesUpTo40(entries, pairId)
+              : entries.size() <= 50 && validResultEntriesUpTo50(entries, pairId);
+    }
+
+    function validResultData(data, pairId, year, categoryId) {
+      return data.keys().hasOnly([
+          'pairId',
+          'year',
+          'categoryId',
+          'generation',
+          'entries',
+          'sourceUserIds',
+          'createdAt'
+        ])
+        && data.keys().hasAll([
+          'pairId',
+          'year',
+          'categoryId',
+          'generation',
+          'entries',
+          'sourceUserIds',
+          'createdAt'
+        ])
+        && data.pairId == pairId
+        && data.year == int(year)
+        && data.categoryId == categoryId
+        && data.generation is int
+        && data.generation == categoryData(pairId, year, categoryId).generation
+        && data.entries is list
+        && data.entries.size() <= categoryData(pairId, year, categoryId).revealRankLimit
+        && validResultEntries(data.entries, pairId)
+        && data.sourceUserIds is list
+        && data.sourceUserIds.size() == 2
+        && data.sourceUserIds.hasAll(pairData(pairId).memberIds)
+        && data.createdAt is timestamp;
+    }
+
+    match /pairs/{pairId} {
+      allow read: if isPairMember(pairId);
+      allow create, update, delete: if false;
+
+      match /years/{year}/textCategories/{categoryId} {
+        allow read: if isPairMember(pairId);
+        allow create: if isPairMember(pairId)
+          && validCategoryData(request.resource.data, pairId, year)
+          && request.resource.data.status == 'draft';
+        allow update: if isPairMember(pairId)
+          && validCategoryData(request.resource.data, pairId, year)
+          && (
+            isDraftCategoryUpdate()
+            || isConfirmCategoryUpdate()
+            || isResetCategoryUpdate()
+            || isResultStatusUpdate()
+          );
+        allow delete: if isPairMember(pairId);
+
+        match /candidates/{candidateId} {
+          allow read: if isPairMember(pairId);
+          allow create, update: if isPairMember(pairId)
+            && isCategoryDraft(pairId, year, categoryId)
+            && validCandidateData(request.resource.data, pairId, year, categoryId);
+          allow delete: if isPairMember(pairId)
+            && isCategoryDraft(pairId, year, categoryId);
+        }
+
+        match /inputs/{userId} {
+          allow read: if isPairMember(pairId)
+            && (userId == request.auth.uid || bothInputsCompleted(pairId, year, categoryId));
+          allow create, update: if isPairMember(pairId)
+            && userId == request.auth.uid
+            && categoryExists(pairId, year, categoryId)
+            && validInputData(request.resource.data, pairId, year, categoryId, userId);
+          allow delete: if isPairMember(pairId);
+        }
+
+        match /results/{resultId} {
+          allow read: if isPairMember(pairId)
+            && bothInputsCompleted(pairId, year, categoryId)
+            && resource.data.generation == categoryData(pairId, year, categoryId).generation;
+          allow create, update: if isPairMember(pairId)
+            && bothInputsCompleted(pairId, year, categoryId)
+            && validResultData(request.resource.data, pairId, year, categoryId);
+          allow delete: if isPairMember(pairId);
+        }
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
