@@ -56,8 +56,12 @@ struct TextCategoryListViewModelTests {
 
         await viewModel.load()
 
-        let rows = await viewModel.rows
+        let rows = await waitForRows(viewModel, expectedCount: 2)
         #expect(await viewModel.screenState == .loaded)
+        #expect(rows.count == 2)
+        guard rows.count == 2 else {
+            return
+        }
         #expect(rows.map(\.category.name) == ["今年の名言", "行ってよかった場所"])
         #expect(rows[0].route == .candidateManagement("category-a"))
         #expect(rows[1].route == .result("category-b"))
@@ -76,6 +80,7 @@ struct TextCategoryListViewModelTests {
 
         await viewModel.load()
 
+        await waitForState(viewModel, expectedState: .empty)
         #expect(await viewModel.screenState == .empty)
         #expect(await viewModel.rows.isEmpty)
     }
@@ -106,6 +111,34 @@ struct TextCategoryListViewModelTests {
             createdAt: Date(timeIntervalSince1970: 1_800_000_000),
             updatedAt: Date(timeIntervalSince1970: 1_800_000_100)
         )
+    }
+
+    private func waitForRows(
+        _ viewModel: TextCategoryListViewModel,
+        expectedCount: Int,
+        maxAttempts: Int = 100
+    ) async -> [TextCategoryListRowState] {
+        for _ in 0 ..< maxAttempts {
+            let rows = await viewModel.rows
+            if rows.count == expectedCount {
+                return rows
+            }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        return await viewModel.rows
+    }
+
+    private func waitForState(
+        _ viewModel: TextCategoryListViewModel,
+        expectedState: TextCategoryListScreenState,
+        maxAttempts: Int = 100
+    ) async {
+        for _ in 0 ..< maxAttempts {
+            if await viewModel.screenState == expectedState {
+                return
+            }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
     }
 }
 

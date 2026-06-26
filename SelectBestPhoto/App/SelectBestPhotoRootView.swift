@@ -3,7 +3,7 @@ import SwiftUI
 struct SelectBestPhotoRootView: View {
     var body: some View {
         TabView {
-            TextCategoryListView(viewModel: TextCategoryDemoDependencies.makeListViewModel())
+            HomeView()
                 .tabItem {
                     Label("ホーム", systemImage: "house")
                 }
