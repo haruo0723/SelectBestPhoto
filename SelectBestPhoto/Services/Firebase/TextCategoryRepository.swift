@@ -311,18 +311,25 @@ final class FirestoreTextCategoryRepository: TextCategoryRepository, @unchecked 
             categoryId: result.categoryId,
             resultId: result.id
         )
+        let categoryReference = categoryRef(pairId: result.pairId, year: result.year, categoryId: result.categoryId)
         let existing = try await reference.getDocument()
         if existing.exists {
             let savedResult = try Self.decodeResult(existing)
             if savedResult.generation == result.generation {
+                try await categoryReference.updateData([
+                    "status": TextCategoryStatus.resultAvailable.rawValue,
+                    "updatedAt": now(),
+                ])
                 return
             }
         }
-        try await reference.setData(Self.encodeResult(result))
-        try await categoryRef(pairId: result.pairId, year: result.year, categoryId: result.categoryId).updateData([
+        let batch = db.batch()
+        batch.setData(Self.encodeResult(result), forDocument: reference)
+        batch.updateData([
             "status": TextCategoryStatus.resultAvailable.rawValue,
             "updatedAt": now(),
-        ])
+        ], forDocument: categoryReference)
+        try await batch.commit()
     }
 
     private func loadMemberIds(pairId: String) async throws -> [String] {

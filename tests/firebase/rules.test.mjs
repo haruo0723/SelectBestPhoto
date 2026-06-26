@@ -6,7 +6,7 @@ import {
   assertSucceeds,
   initializeTestEnvironment
 } from "@firebase/rules-unit-testing";
-import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { ref, uploadString } from "firebase/storage";
 
 const projectId = "demo-select-best-photo";
@@ -62,6 +62,54 @@ test("Firestore rules allow users to write only their own input", async () => {
   await assertFails(setDoc(inputRef(userADb, "user-b"), inputData("user-b", "candidate-a", "inProgress")));
 });
 
+test("Firestore rules reject completed inputs without required selections", async () => {
+  const userADb = testEnv.authenticatedContext("user-a").firestore();
+
+  await assertFails(setDoc(inputRef(userADb, "user-a"), {
+    ...inputData("user-a", "candidate-a", "completed"),
+    selections: []
+  }));
+  await assertFails(setDoc(inputRef(userADb, "user-a"), {
+    ...inputData("user-a", "candidate-a", "completed"),
+    selections: [{ rank: "1", candidateId: "candidate-a" }]
+  }));
+});
+
+test("Firestore rules reject documents whose year does not match the path", async () => {
+  const userADb = testEnv.authenticatedContext("user-a").firestore();
+
+  await assertFails(setDoc(categoryRef(userADb, "category-wrong-year"), {
+    ...categoryData(),
+    year: 2025
+  }));
+  await assertFails(setDoc(candidateRef(userADb, "candidate-a"), {
+    ...candidateData("candidate-a"),
+    year: 2025
+  }));
+  await assertFails(setDoc(inputRef(userADb, "user-a"), {
+    ...inputData("user-a", "candidate-a", "inProgress"),
+    year: 2025
+  }));
+});
+
+test("Firestore rules constrain category status transitions", async () => {
+  const userADb = testEnv.authenticatedContext("user-a").firestore();
+
+  await assertFails(updateDoc(categoryRef(userADb), {
+    status: "resultAvailable",
+    updatedAt: now()
+  }));
+  await assertSucceeds(updateDoc(categoryRef(userADb), {
+    status: "confirmed",
+    confirmedAt: now(),
+    updatedAt: now()
+  }));
+  await assertFails(updateDoc(categoryRef(userADb), {
+    name: "確定後の変更",
+    updatedAt: now()
+  }));
+});
+
 test("Firestore rules hide partner input and results until both inputs are completed", async () => {
   await seedCandidate("candidate-a");
   await seedInput("user-a", "candidate-a", "completed");
@@ -77,6 +125,36 @@ test("Firestore rules hide partner input and results until both inputs are compl
 
   await assertSucceeds(getDoc(inputRef(userADb, "user-b")));
   await assertSucceeds(getDoc(resultRef(userADb)));
+});
+
+test("Firestore rules allow result creation after both inputs are completed", async () => {
+  await seedInput("user-a", "candidate-a", "completed");
+  await seedInput("user-b", "candidate-a", "completed");
+  const userADb = testEnv.authenticatedContext("user-a").firestore();
+
+  await assertSucceeds(setDoc(resultRef(userADb), resultData()));
+});
+
+test("Firestore rules reject malformed results", async () => {
+  await seedInput("user-a", "candidate-a", "completed");
+  await seedInput("user-b", "candidate-a", "completed");
+  const userADb = testEnv.authenticatedContext("user-a").firestore();
+
+  await assertFails(setDoc(resultRef(userADb), {
+    ...resultData(),
+    entries: [{
+      ...resultData().entries[0],
+      totalPoints: -1
+    }]
+  }));
+  await assertFails(setDoc(resultRef(userADb), {
+    ...resultData(),
+    sourceUserIds: ["user-a", "user-x"]
+  }));
+  await assertFails(setDoc(resultRef(userADb), {
+    ...resultData(),
+    year: 2025
+  }));
 });
 
 test("Storage rules keep MVP media access fully denied", async () => {
@@ -126,8 +204,8 @@ async function seedResult() {
   });
 }
 
-function categoryRef(db) {
-  return doc(db, "pairs", pairId, "years", String(year), "textCategories", categoryId);
+function categoryRef(db, id = categoryId) {
+  return doc(db, "pairs", pairId, "years", String(year), "textCategories", id);
 }
 
 function candidateRef(db, candidateId) {
