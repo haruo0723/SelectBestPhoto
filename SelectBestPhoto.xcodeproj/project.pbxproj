@@ -22,6 +22,10 @@
 		00000000000000000000010D /* TextCategoryRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020C /* TextCategoryRepository.swift */; };
 		00000000000000000000010E /* TextCategoryResultCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020D /* TextCategoryResultCalculatorTests.swift */; };
 		00000000000000000000010F /* TextCategoryResultCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020E /* TextCategoryResultCalculator.swift */; };
+		000000000000000000000110 /* SelectBestPhotoRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000020F /* SelectBestPhotoRootView.swift */; };
+		000000000000000000000111 /* TextCategoryListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000210 /* TextCategoryListViewModel.swift */; };
+		000000000000000000000112 /* TextCategoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000211 /* TextCategoryListView.swift */; };
+		000000000000000000000113 /* TextCategoryListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000212 /* TextCategoryListViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +60,10 @@
 		00000000000000000000020C /* TextCategoryRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryRepository.swift; sourceTree = "<group>"; };
 		00000000000000000000020D /* TextCategoryResultCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultCalculatorTests.swift; sourceTree = "<group>"; };
 		00000000000000000000020E /* TextCategoryResultCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultCalculator.swift; sourceTree = "<group>"; };
+		00000000000000000000020F /* SelectBestPhotoRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectBestPhotoRootView.swift; sourceTree = "<group>"; };
+		000000000000000000000210 /* TextCategoryListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryListViewModel.swift; sourceTree = "<group>"; };
+		000000000000000000000211 /* TextCategoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryListView.swift; sourceTree = "<group>"; };
+		000000000000000000000212 /* TextCategoryListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryListViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +111,7 @@
 			children = (
 				000000000000000000000201 /* SelectBestPhotoApp.swift */,
 				000000000000000000000208 /* AppDelegate.swift */,
+				00000000000000000000020F /* SelectBestPhotoRootView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -208,7 +217,15 @@
 		000000000000000000000611 /* MonthlyBest */ = {isa = PBXGroup; children = (); path = MonthlyBest; sourceTree = "<group>"; };
 		000000000000000000000612 /* AnnualBest */ = {isa = PBXGroup; children = (); path = AnnualBest; sourceTree = "<group>"; };
 		000000000000000000000613 /* CustomCategories */ = {isa = PBXGroup; children = (); path = CustomCategories; sourceTree = "<group>"; };
-		000000000000000000000614 /* TextCategories */ = {isa = PBXGroup; children = (); path = TextCategories; sourceTree = "<group>"; };
+		000000000000000000000614 /* TextCategories */ = {
+			isa = PBXGroup;
+			children = (
+				00000000000000000000061E /* Views */,
+				00000000000000000000061F /* ViewModels */,
+			);
+			path = TextCategories;
+			sourceTree = "<group>";
+		};
 		000000000000000000000615 /* RevivalPicks */ = {isa = PBXGroup; children = (); path = RevivalPicks; sourceTree = "<group>"; };
 		000000000000000000000616 /* ResultReveal */ = {isa = PBXGroup; children = (); path = ResultReveal; sourceTree = "<group>"; };
 		000000000000000000000617 /* Settings */ = {isa = PBXGroup; children = (); path = Settings; sourceTree = "<group>"; };
@@ -222,6 +239,7 @@
 				000000000000000000000209 /* TextCategoryModelTests.swift */,
 				00000000000000000000020B /* TextCategoryRepositoryBoundaryTests.swift */,
 				00000000000000000000020D /* TextCategoryResultCalculatorTests.swift */,
+				000000000000000000000212 /* TextCategoryListViewModelTests.swift */,
 			);
 			path = TextCategories;
 			sourceTree = "<group>";
@@ -233,6 +251,22 @@
 				00000000000000000000020E /* TextCategoryResultCalculator.swift */,
 			);
 			path = TextCategories;
+			sourceTree = "<group>";
+		};
+		00000000000000000000061E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000211 /* TextCategoryListView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		00000000000000000000061F /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000210 /* TextCategoryListViewModel.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -353,6 +387,9 @@
 				00000000000000000000010B /* TextCategoryModels.swift in Sources */,
 				00000000000000000000010D /* TextCategoryRepository.swift in Sources */,
 				00000000000000000000010F /* TextCategoryResultCalculator.swift in Sources */,
+				000000000000000000000110 /* SelectBestPhotoRootView.swift in Sources */,
+				000000000000000000000111 /* TextCategoryListViewModel.swift in Sources */,
+				000000000000000000000112 /* TextCategoryListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -364,6 +401,7 @@
 				00000000000000000000010A /* TextCategoryModelTests.swift in Sources */,
 				00000000000000000000010C /* TextCategoryRepositoryBoundaryTests.swift in Sources */,
 				00000000000000000000010E /* TextCategoryResultCalculatorTests.swift in Sources */,
+				000000000000000000000113 /* TextCategoryListViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
