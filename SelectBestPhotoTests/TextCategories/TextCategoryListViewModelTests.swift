@@ -39,8 +39,18 @@ struct TextCategoryListViewModelTests {
 
     @Test func viewModelBuildsRowsAndEmptyStateFromObservedCategories() async {
         let repository = FakeListRepository(categories: [
-            makeCategory(id: "category-a", name: "今年の名言", status: .draft),
-            makeCategory(id: "category-b", name: "行ってよかった場所", status: .confirmed),
+            makeCategory(
+                id: "category-a",
+                name: "今年の名言",
+                status: .draft,
+                updatedAt: Date(timeIntervalSince1970: 1_800_000_200)
+            ),
+            makeCategory(
+                id: "category-b",
+                name: "行ってよかった場所",
+                status: .confirmed,
+                updatedAt: Date(timeIntervalSince1970: 1_800_000_100)
+            ),
         ])
         let contextProvider = FixedListPairContextProvider(
             context: PairContext(pairId: "pair-1", userId: "user-a", memberIds: ["user-a", "user-b"])
@@ -121,7 +131,8 @@ struct TextCategoryListViewModelTests {
         id: String = "category-1",
         name: String = "今年の名言",
         status: TextCategoryStatus,
-        inputStatuses: [String: InputStatus] = [:]
+        inputStatuses: [String: InputStatus] = [:],
+        updatedAt: Date = Date(timeIntervalSince1970: 1_800_000_100)
     ) -> TextCategory {
         TextCategory(
             id: id,
@@ -143,7 +154,7 @@ struct TextCategoryListViewModelTests {
             createdByUserId: "user-a",
             confirmedAt: status == .draft ? nil : Date(timeIntervalSince1970: 1_800_000_000),
             createdAt: Date(timeIntervalSince1970: 1_800_000_000),
-            updatedAt: Date(timeIntervalSince1970: 1_800_000_100)
+            updatedAt: updatedAt
         )
     }
 

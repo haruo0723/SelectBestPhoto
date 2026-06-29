@@ -2,9 +2,14 @@ import SwiftUI
 
 struct TextCategoryListView: View {
     @StateObject private var viewModel: TextCategoryListViewModel
+    private let makeSettingsViewModel: (Int) -> TextCategorySettingsViewModel
 
-    init(viewModel: TextCategoryListViewModel) {
+    init(
+        viewModel: TextCategoryListViewModel,
+        makeSettingsViewModel: @escaping (Int) -> TextCategorySettingsViewModel
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.makeSettingsViewModel = makeSettingsViewModel
     }
 
     var body: some View {
@@ -32,7 +37,12 @@ struct TextCategoryListView: View {
                     }
                 }
                 .navigationDestination(for: TextCategoryListRoute.self) { route in
-                    TextCategoryPlaceholderView(route: route)
+                    switch route {
+                    case .categorySettings:
+                        TextCategorySettingsView(viewModel: makeSettingsViewModel(viewModel.selectedYear))
+                    default:
+                        TextCategoryPlaceholderView(route: route)
+                    }
                 }
         }
         .task {
@@ -152,7 +162,7 @@ private struct TextCategoryRowView: View {
     }
 }
 
-private struct TextCategoryPlaceholderView: View {
+struct TextCategoryPlaceholderView: View {
     let route: TextCategoryListRoute
 
     var body: some View {
