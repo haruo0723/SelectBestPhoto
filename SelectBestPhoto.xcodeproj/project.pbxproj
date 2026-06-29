@@ -26,6 +26,9 @@
 		000000000000000000000111 /* TextCategoryListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000210 /* TextCategoryListViewModel.swift */; };
 		000000000000000000000112 /* TextCategoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000211 /* TextCategoryListView.swift */; };
 		000000000000000000000113 /* TextCategoryListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000212 /* TextCategoryListViewModelTests.swift */; };
+		000000000000000000000114 /* TextCategorySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000213 /* TextCategorySettingsViewModel.swift */; };
+		000000000000000000000115 /* TextCategorySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000214 /* TextCategorySettingsView.swift */; };
+		000000000000000000000116 /* TextCategorySettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000215 /* TextCategorySettingsViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +67,9 @@
 		000000000000000000000210 /* TextCategoryListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryListViewModel.swift; sourceTree = "<group>"; };
 		000000000000000000000211 /* TextCategoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryListView.swift; sourceTree = "<group>"; };
 		000000000000000000000212 /* TextCategoryListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryListViewModelTests.swift; sourceTree = "<group>"; };
+		000000000000000000000213 /* TextCategorySettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategorySettingsViewModel.swift; sourceTree = "<group>"; };
+		000000000000000000000214 /* TextCategorySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategorySettingsView.swift; sourceTree = "<group>"; };
+		000000000000000000000215 /* TextCategorySettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategorySettingsViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,6 +246,7 @@
 				00000000000000000000020B /* TextCategoryRepositoryBoundaryTests.swift */,
 				00000000000000000000020D /* TextCategoryResultCalculatorTests.swift */,
 				000000000000000000000212 /* TextCategoryListViewModelTests.swift */,
+				000000000000000000000215 /* TextCategorySettingsViewModelTests.swift */,
 			);
 			path = TextCategories;
 			sourceTree = "<group>";
@@ -257,6 +264,7 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000211 /* TextCategoryListView.swift */,
+				000000000000000000000214 /* TextCategorySettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -265,6 +273,7 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000210 /* TextCategoryListViewModel.swift */,
+				000000000000000000000213 /* TextCategorySettingsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -390,6 +399,8 @@
 				000000000000000000000110 /* SelectBestPhotoRootView.swift in Sources */,
 				000000000000000000000111 /* TextCategoryListViewModel.swift in Sources */,
 				000000000000000000000112 /* TextCategoryListView.swift in Sources */,
+				000000000000000000000114 /* TextCategorySettingsViewModel.swift in Sources */,
+				000000000000000000000115 /* TextCategorySettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,6 +413,7 @@
 				00000000000000000000010C /* TextCategoryRepositoryBoundaryTests.swift in Sources */,
 				00000000000000000000010E /* TextCategoryResultCalculatorTests.swift in Sources */,
 				000000000000000000000113 /* TextCategoryListViewModelTests.swift in Sources */,
+				000000000000000000000116 /* TextCategorySettingsViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

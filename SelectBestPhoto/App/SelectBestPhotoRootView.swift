@@ -9,10 +9,13 @@ struct SelectBestPhotoRootView: View {
                     Label("ホーム", systemImage: "house")
                 }
 
-            TextCategoryListView(viewModel: TextCategoryDependencies.makeListViewModel())
-                .tabItem {
-                    Label("発表", systemImage: "trophy")
-                }
+            TextCategoryListView(
+                viewModel: TextCategoryDependencies.makeListViewModel(),
+                makeSettingsViewModel: TextCategoryDependencies.makeSettingsViewModel(year:)
+            )
+            .tabItem {
+                Label("発表", systemImage: "trophy")
+            }
 
             NavigationStack {
                 List {
@@ -43,6 +46,23 @@ private enum TextCategoryDependencies {
         return TextCategoryListViewModel(
             repository: FirestoreTextCategoryRepository(),
             pairContextProvider: FirebasePairContextProvider()
+        )
+    }
+
+    @MainActor
+    static func makeSettingsViewModel(year: Int) -> TextCategorySettingsViewModel {
+        guard FirebaseApp.app() != nil else {
+            return TextCategorySettingsViewModel(
+                repository: UnavailableTextCategoryRepository(),
+                pairContextProvider: UnavailablePairContextProvider(),
+                year: year
+            )
+        }
+
+        return TextCategorySettingsViewModel(
+            repository: FirestoreTextCategoryRepository(),
+            pairContextProvider: FirebasePairContextProvider(),
+            year: year
         )
     }
 }
