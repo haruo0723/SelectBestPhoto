@@ -11,7 +11,8 @@ struct SelectBestPhotoRootView: View {
 
             TextCategoryListView(
                 viewModel: TextCategoryDependencies.makeListViewModel(),
-                makeSettingsViewModel: TextCategoryDependencies.makeSettingsViewModel(year:)
+                makeSettingsViewModel: TextCategoryDependencies.makeSettingsViewModel(year:),
+                makeCandidateManagementViewModel: TextCategoryDependencies.makeCandidateManagementViewModel(year:categoryId:)
             )
             .tabItem {
                 Label("発表", systemImage: "trophy")
@@ -63,6 +64,25 @@ private enum TextCategoryDependencies {
             repository: FirestoreTextCategoryRepository(),
             pairContextProvider: FirebasePairContextProvider(),
             year: year
+        )
+    }
+
+    @MainActor
+    static func makeCandidateManagementViewModel(year: Int, categoryId: String) -> TextCandidateManagementViewModel {
+        guard FirebaseApp.app() != nil else {
+            return TextCandidateManagementViewModel(
+                repository: UnavailableTextCategoryRepository(),
+                pairContextProvider: UnavailablePairContextProvider(),
+                year: year,
+                categoryId: categoryId
+            )
+        }
+
+        return TextCandidateManagementViewModel(
+            repository: FirestoreTextCategoryRepository(),
+            pairContextProvider: FirebasePairContextProvider(),
+            year: year,
+            categoryId: categoryId
         )
     }
 }

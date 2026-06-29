@@ -3,13 +3,16 @@ import SwiftUI
 struct TextCategoryListView: View {
     @StateObject private var viewModel: TextCategoryListViewModel
     private let makeSettingsViewModel: (Int) -> TextCategorySettingsViewModel
+    private let makeCandidateManagementViewModel: (Int, String) -> TextCandidateManagementViewModel
 
     init(
         viewModel: TextCategoryListViewModel,
-        makeSettingsViewModel: @escaping (Int) -> TextCategorySettingsViewModel
+        makeSettingsViewModel: @escaping (Int) -> TextCategorySettingsViewModel,
+        makeCandidateManagementViewModel: @escaping (Int, String) -> TextCandidateManagementViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.makeSettingsViewModel = makeSettingsViewModel
+        self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
     }
 
     var body: some View {
@@ -39,7 +42,16 @@ struct TextCategoryListView: View {
                 .navigationDestination(for: TextCategoryListRoute.self) { route in
                     switch route {
                     case .categorySettings:
-                        TextCategorySettingsView(viewModel: makeSettingsViewModel(viewModel.selectedYear))
+                        TextCategorySettingsView(
+                            viewModel: makeSettingsViewModel(viewModel.selectedYear),
+                            makeCandidateManagementViewModel: { categoryId in
+                                makeCandidateManagementViewModel(viewModel.selectedYear, categoryId)
+                            }
+                        )
+                    case let .candidateManagement(categoryId):
+                        TextCandidateManagementView(
+                            viewModel: makeCandidateManagementViewModel(viewModel.selectedYear, categoryId)
+                        )
                     default:
                         TextCategoryPlaceholderView(route: route)
                     }
