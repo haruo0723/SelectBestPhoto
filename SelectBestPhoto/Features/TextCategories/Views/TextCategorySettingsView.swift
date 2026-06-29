@@ -2,10 +2,15 @@ import SwiftUI
 
 struct TextCategorySettingsView: View {
     @StateObject private var viewModel: TextCategorySettingsViewModel
+    private let makeCandidateManagementViewModel: (String) -> TextCandidateManagementViewModel
     @State private var savedCategoryId: String?
 
-    init(viewModel: TextCategorySettingsViewModel) {
+    init(
+        viewModel: TextCategorySettingsViewModel,
+        makeCandidateManagementViewModel: @escaping (String) -> TextCandidateManagementViewModel
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
     }
 
     var body: some View {
@@ -103,7 +108,7 @@ struct TextCategorySettingsView: View {
             )
         ) {
             let categoryId = savedCategoryId ?? ""
-            TextCategoryPlaceholderView(route: .candidateManagement(categoryId))
+            TextCandidateManagementView(viewModel: makeCandidateManagementViewModel(categoryId))
         }
     }
 }

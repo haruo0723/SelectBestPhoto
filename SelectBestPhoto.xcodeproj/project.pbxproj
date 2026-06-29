@@ -29,6 +29,10 @@
 		000000000000000000000114 /* TextCategorySettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000213 /* TextCategorySettingsViewModel.swift */; };
 		000000000000000000000115 /* TextCategorySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000214 /* TextCategorySettingsView.swift */; };
 		000000000000000000000116 /* TextCategorySettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000215 /* TextCategorySettingsViewModelTests.swift */; };
+		000000000000000000000117 /* TextCandidateManagementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000216 /* TextCandidateManagementViewModel.swift */; };
+		000000000000000000000118 /* TextCandidateImagePlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000217 /* TextCandidateImagePlaceholder.swift */; };
+		000000000000000000000119 /* TextCandidateManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000218 /* TextCandidateManagementView.swift */; };
+		00000000000000000000011A /* TextCandidateManagementViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000219 /* TextCandidateManagementViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +74,10 @@
 		000000000000000000000213 /* TextCategorySettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategorySettingsViewModel.swift; sourceTree = "<group>"; };
 		000000000000000000000214 /* TextCategorySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategorySettingsView.swift; sourceTree = "<group>"; };
 		000000000000000000000215 /* TextCategorySettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategorySettingsViewModelTests.swift; sourceTree = "<group>"; };
+		000000000000000000000216 /* TextCandidateManagementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCandidateManagementViewModel.swift; sourceTree = "<group>"; };
+		000000000000000000000217 /* TextCandidateImagePlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCandidateImagePlaceholder.swift; sourceTree = "<group>"; };
+		000000000000000000000218 /* TextCandidateManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCandidateManagementView.swift; sourceTree = "<group>"; };
+		000000000000000000000219 /* TextCandidateManagementViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCandidateManagementViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,6 +234,7 @@
 		000000000000000000000614 /* TextCategories */ = {
 			isa = PBXGroup;
 			children = (
+				000000000000000000000620 /* Components */,
 				00000000000000000000061E /* Views */,
 				00000000000000000000061F /* ViewModels */,
 			);
@@ -247,6 +256,7 @@
 				00000000000000000000020D /* TextCategoryResultCalculatorTests.swift */,
 				000000000000000000000212 /* TextCategoryListViewModelTests.swift */,
 				000000000000000000000215 /* TextCategorySettingsViewModelTests.swift */,
+				000000000000000000000219 /* TextCandidateManagementViewModelTests.swift */,
 			);
 			path = TextCategories;
 			sourceTree = "<group>";
@@ -265,6 +275,7 @@
 			children = (
 				000000000000000000000211 /* TextCategoryListView.swift */,
 				000000000000000000000214 /* TextCategorySettingsView.swift */,
+				000000000000000000000218 /* TextCandidateManagementView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -274,8 +285,17 @@
 			children = (
 				000000000000000000000210 /* TextCategoryListViewModel.swift */,
 				000000000000000000000213 /* TextCategorySettingsViewModel.swift */,
+				000000000000000000000216 /* TextCandidateManagementViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		000000000000000000000620 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000217 /* TextCandidateImagePlaceholder.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -401,6 +421,9 @@
 				000000000000000000000112 /* TextCategoryListView.swift in Sources */,
 				000000000000000000000114 /* TextCategorySettingsViewModel.swift in Sources */,
 				000000000000000000000115 /* TextCategorySettingsView.swift in Sources */,
+				000000000000000000000117 /* TextCandidateManagementViewModel.swift in Sources */,
+				000000000000000000000118 /* TextCandidateImagePlaceholder.swift in Sources */,
+				000000000000000000000119 /* TextCandidateManagementView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -414,6 +437,7 @@
 				00000000000000000000010E /* TextCategoryResultCalculatorTests.swift in Sources */,
 				000000000000000000000113 /* TextCategoryListViewModelTests.swift in Sources */,
 				000000000000000000000116 /* TextCategorySettingsViewModelTests.swift in Sources */,
+				00000000000000000000011A /* TextCandidateManagementViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
