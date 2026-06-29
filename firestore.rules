@@ -80,6 +80,7 @@ service cloud.firestore {
           'pointsByRank',
           'generation',
           'createdByUserId',
+          'inputStatuses',
           'confirmedAt',
           'createdAt',
           'updatedAt'
@@ -112,9 +113,27 @@ service cloud.firestore {
         && data.generation is int
         && data.generation >= 0
         && data.createdByUserId is string
+        && validInputStatuses(data, pairId)
         && data.createdAt is timestamp
         && data.updatedAt is timestamp
         && validTimestampOrMissing(data, 'confirmedAt');
+    }
+
+    function validInputStatuses(data, pairId) {
+      return !('inputStatuses' in data)
+        || (
+          data.inputStatuses is map
+          && data.inputStatuses.keys().hasOnly(pairData(pairId).memberIds)
+          && (
+            !(pairData(pairId).memberIds[0] in data.inputStatuses)
+            || data.inputStatuses[pairData(pairId).memberIds[0]] in ['notStarted', 'inProgress', 'completed']
+          )
+          && (
+            pairData(pairId).memberIds.size() < 2
+            || !(pairData(pairId).memberIds[1] in data.inputStatuses)
+            || data.inputStatuses[pairData(pairId).memberIds[1]] in ['notStarted', 'inProgress', 'completed']
+          )
+        );
     }
 
     function isResetCategoryUpdate() {
@@ -125,6 +144,7 @@ service cloud.firestore {
           'status',
           'generation',
           'confirmedAt',
+          'inputStatuses',
           'updatedAt'
         ]);
     }
@@ -135,6 +155,16 @@ service cloud.firestore {
         && request.resource.data.generation == resource.data.generation
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status',
+          'updatedAt'
+        ]);
+    }
+
+    function isInputStatusSummaryUpdate() {
+      return resource.data.status in ['confirmed', 'resultAvailable']
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.generation == resource.data.generation
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'inputStatuses',
           'updatedAt'
         ]);
     }
@@ -473,6 +503,7 @@ service cloud.firestore {
             || isConfirmCategoryUpdate()
             || isResetCategoryUpdate()
             || isResultStatusUpdate()
+            || isInputStatusSummaryUpdate()
           );
         allow delete: if isPairMember(pairId);
 

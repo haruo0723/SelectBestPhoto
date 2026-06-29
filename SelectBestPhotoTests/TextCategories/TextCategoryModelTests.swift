@@ -19,13 +19,13 @@ struct TextCategoryModelTests {
         let invalidPoints = TextCategorySettings(inputRankLimit: 1, revealRankLimit: 1, pointsByRank: [RankPoint(rank: 1, points: 0)])
         let missingRankPoint = TextCategorySettings(inputRankLimit: 2, revealRankLimit: 1, pointsByRank: [RankPoint(rank: 1, points: 10)])
 
-        #expect(throws: TextCategoryValidationError.self) {
+        #expect(throws: TextCategoryValidationError.invalidInputRankLimit) {
             try TextCategoryValidator.validate(settings: invalidInputLimit)
         }
-        #expect(throws: TextCategoryValidationError.self) {
+        #expect(throws: TextCategoryValidationError.invalidRevealRankLimit) {
             try TextCategoryValidator.validate(settings: invalidRevealLimit)
         }
-        #expect(throws: TextCategoryValidationError.self) {
+        #expect(throws: TextCategoryValidationError.invalidRankPoint(rank: 1)) {
             try TextCategoryValidator.validate(settings: invalidPoints)
         }
         #expect(throws: TextCategoryValidationError.missingRankPoint(rank: 2)) {

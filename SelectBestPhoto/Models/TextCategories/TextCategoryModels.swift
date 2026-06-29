@@ -6,6 +6,14 @@ enum InputStatus: String, Codable, Equatable {
     case completed
 }
 
+struct TextCategoryInputStatusPair: Equatable {
+    var own: InputStatus
+    var partner: InputStatus
+
+    static let notStarted = TextCategoryInputStatusPair(own: .notStarted, partner: .notStarted)
+    static let completed = TextCategoryInputStatusPair(own: .completed, partner: .completed)
+}
+
 enum TextCategoryStatus: String, Codable, Equatable {
     case draft
     case confirmed
@@ -18,6 +26,7 @@ struct TextCategory: Codable, Identifiable, Equatable {
     var year: Int
     var name: String
     var status: TextCategoryStatus
+    var inputStatuses: [String: InputStatus] = [:]
     var settings: TextCategorySettings
     var generation: Int
     var createdByUserId: String
