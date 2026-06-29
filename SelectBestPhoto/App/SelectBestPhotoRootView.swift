@@ -12,7 +12,8 @@ struct SelectBestPhotoRootView: View {
             TextCategoryListView(
                 viewModel: TextCategoryDependencies.makeListViewModel(),
                 makeSettingsViewModel: TextCategoryDependencies.makeSettingsViewModel(year:),
-                makeCandidateManagementViewModel: TextCategoryDependencies.makeCandidateManagementViewModel(year:categoryId:)
+                makeCandidateManagementViewModel: TextCategoryDependencies.makeCandidateManagementViewModel(year:categoryId:),
+                makeRankingInputViewModel: TextCategoryDependencies.makeRankingInputViewModel(year:categoryId:)
             )
             .tabItem {
                 Label("発表", systemImage: "trophy")
@@ -79,6 +80,25 @@ private enum TextCategoryDependencies {
         }
 
         return TextCandidateManagementViewModel(
+            repository: FirestoreTextCategoryRepository(),
+            pairContextProvider: FirebasePairContextProvider(),
+            year: year,
+            categoryId: categoryId
+        )
+    }
+
+    @MainActor
+    static func makeRankingInputViewModel(year: Int, categoryId: String) -> TextRankingInputViewModel {
+        guard FirebaseApp.app() != nil else {
+            return TextRankingInputViewModel(
+                repository: UnavailableTextCategoryRepository(),
+                pairContextProvider: UnavailablePairContextProvider(),
+                year: year,
+                categoryId: categoryId
+            )
+        }
+
+        return TextRankingInputViewModel(
             repository: FirestoreTextCategoryRepository(),
             pairContextProvider: FirebasePairContextProvider(),
             year: year,

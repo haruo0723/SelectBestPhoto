@@ -33,6 +33,10 @@
 		000000000000000000000118 /* TextCandidateImagePlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000217 /* TextCandidateImagePlaceholder.swift */; };
 		000000000000000000000119 /* TextCandidateManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000218 /* TextCandidateManagementView.swift */; };
 		00000000000000000000011A /* TextCandidateManagementViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000219 /* TextCandidateManagementViewModelTests.swift */; };
+		00000000000000000000011B /* TextRankingInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021A /* TextRankingInputViewModel.swift */; };
+		00000000000000000000011C /* RankSlotRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021B /* RankSlotRow.swift */; };
+		00000000000000000000011D /* TextRankingInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021C /* TextRankingInputView.swift */; };
+		00000000000000000000011E /* TextRankingInputViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021D /* TextRankingInputViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,6 +82,10 @@
 		000000000000000000000217 /* TextCandidateImagePlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCandidateImagePlaceholder.swift; sourceTree = "<group>"; };
 		000000000000000000000218 /* TextCandidateManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCandidateManagementView.swift; sourceTree = "<group>"; };
 		000000000000000000000219 /* TextCandidateManagementViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCandidateManagementViewModelTests.swift; sourceTree = "<group>"; };
+		00000000000000000000021A /* TextRankingInputViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRankingInputViewModel.swift; sourceTree = "<group>"; };
+		00000000000000000000021B /* RankSlotRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RankSlotRow.swift; sourceTree = "<group>"; };
+		00000000000000000000021C /* TextRankingInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRankingInputView.swift; sourceTree = "<group>"; };
+		00000000000000000000021D /* TextRankingInputViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRankingInputViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -257,6 +265,7 @@
 				000000000000000000000212 /* TextCategoryListViewModelTests.swift */,
 				000000000000000000000215 /* TextCategorySettingsViewModelTests.swift */,
 				000000000000000000000219 /* TextCandidateManagementViewModelTests.swift */,
+				00000000000000000000021D /* TextRankingInputViewModelTests.swift */,
 			);
 			path = TextCategories;
 			sourceTree = "<group>";
@@ -276,6 +285,7 @@
 				000000000000000000000211 /* TextCategoryListView.swift */,
 				000000000000000000000214 /* TextCategorySettingsView.swift */,
 				000000000000000000000218 /* TextCandidateManagementView.swift */,
+				00000000000000000000021C /* TextRankingInputView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -286,6 +296,7 @@
 				000000000000000000000210 /* TextCategoryListViewModel.swift */,
 				000000000000000000000213 /* TextCategorySettingsViewModel.swift */,
 				000000000000000000000216 /* TextCandidateManagementViewModel.swift */,
+				00000000000000000000021A /* TextRankingInputViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -294,6 +305,7 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000217 /* TextCandidateImagePlaceholder.swift */,
+				00000000000000000000021B /* RankSlotRow.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -424,6 +436,9 @@
 				000000000000000000000117 /* TextCandidateManagementViewModel.swift in Sources */,
 				000000000000000000000118 /* TextCandidateImagePlaceholder.swift in Sources */,
 				000000000000000000000119 /* TextCandidateManagementView.swift in Sources */,
+				00000000000000000000011B /* TextRankingInputViewModel.swift in Sources */,
+				00000000000000000000011C /* RankSlotRow.swift in Sources */,
+				00000000000000000000011D /* TextRankingInputView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -438,6 +453,7 @@
 				000000000000000000000113 /* TextCategoryListViewModelTests.swift in Sources */,
 				000000000000000000000116 /* TextCategorySettingsViewModelTests.swift in Sources */,
 				00000000000000000000011A /* TextCandidateManagementViewModelTests.swift in Sources */,
+				00000000000000000000011E /* TextRankingInputViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

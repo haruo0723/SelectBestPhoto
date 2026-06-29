@@ -3,14 +3,17 @@ import SwiftUI
 struct TextCategorySettingsView: View {
     @StateObject private var viewModel: TextCategorySettingsViewModel
     private let makeCandidateManagementViewModel: (String) -> TextCandidateManagementViewModel
+    private let makeRankingInputViewModel: (String) -> TextRankingInputViewModel
     @State private var savedCategoryId: String?
 
     init(
         viewModel: TextCategorySettingsViewModel,
-        makeCandidateManagementViewModel: @escaping (String) -> TextCandidateManagementViewModel
+        makeCandidateManagementViewModel: @escaping (String) -> TextCandidateManagementViewModel,
+        makeRankingInputViewModel: @escaping (String) -> TextRankingInputViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
+        self.makeRankingInputViewModel = makeRankingInputViewModel
     }
 
     var body: some View {
@@ -108,7 +111,10 @@ struct TextCategorySettingsView: View {
             )
         ) {
             let categoryId = savedCategoryId ?? ""
-            TextCandidateManagementView(viewModel: makeCandidateManagementViewModel(categoryId))
+            TextCandidateManagementView(
+                viewModel: makeCandidateManagementViewModel(categoryId),
+                makeRankingInputViewModel: makeRankingInputViewModel
+            )
         }
     }
 }
