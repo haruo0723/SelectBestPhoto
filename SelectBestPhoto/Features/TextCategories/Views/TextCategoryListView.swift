@@ -5,17 +5,23 @@ struct TextCategoryListView: View {
     private let makeSettingsViewModel: (Int) -> TextCategorySettingsViewModel
     private let makeCandidateManagementViewModel: (Int, String) -> TextCandidateManagementViewModel
     private let makeRankingInputViewModel: (Int, String) -> TextRankingInputViewModel
+    private let makeWaitingViewModel: (Int, String) -> TextCategoryWaitingViewModel
+    private let makeResultViewModel: (Int, String) -> TextCategoryResultViewModel
 
     init(
         viewModel: TextCategoryListViewModel,
         makeSettingsViewModel: @escaping (Int) -> TextCategorySettingsViewModel,
         makeCandidateManagementViewModel: @escaping (Int, String) -> TextCandidateManagementViewModel,
-        makeRankingInputViewModel: @escaping (Int, String) -> TextRankingInputViewModel
+        makeRankingInputViewModel: @escaping (Int, String) -> TextRankingInputViewModel,
+        makeWaitingViewModel: @escaping (Int, String) -> TextCategoryWaitingViewModel,
+        makeResultViewModel: @escaping (Int, String) -> TextCategoryResultViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.makeSettingsViewModel = makeSettingsViewModel
         self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
         self.makeRankingInputViewModel = makeRankingInputViewModel
+        self.makeWaitingViewModel = makeWaitingViewModel
+        self.makeResultViewModel = makeResultViewModel
     }
 
     var body: some View {
@@ -52,6 +58,12 @@ struct TextCategoryListView: View {
                             },
                             makeRankingInputViewModel: { categoryId in
                                 makeRankingInputViewModel(viewModel.selectedYear, categoryId)
+                            },
+                            makeWaitingViewModel: { year, categoryId in
+                                makeWaitingViewModel(year, categoryId)
+                            },
+                            makeResultViewModel: { year, categoryId in
+                                makeResultViewModel(year, categoryId)
                             }
                         )
                     case let .candidateManagement(categoryId):
@@ -59,14 +71,35 @@ struct TextCategoryListView: View {
                             viewModel: makeCandidateManagementViewModel(viewModel.selectedYear, categoryId),
                             makeRankingInputViewModel: { categoryId in
                                 makeRankingInputViewModel(viewModel.selectedYear, categoryId)
+                            },
+                            makeWaitingViewModel: { year, categoryId in
+                                makeWaitingViewModel(year, categoryId)
+                            },
+                            makeResultViewModel: { year, categoryId in
+                                makeResultViewModel(year, categoryId)
                             }
                         )
                     case let .rankingInput(categoryId):
                         TextRankingInputView(
-                            viewModel: makeRankingInputViewModel(viewModel.selectedYear, categoryId)
+                            viewModel: makeRankingInputViewModel(viewModel.selectedYear, categoryId),
+                            makeWaitingViewModel: { year, categoryId in
+                                makeWaitingViewModel(year, categoryId)
+                            },
+                            makeResultViewModel: { year, categoryId in
+                                makeResultViewModel(year, categoryId)
+                            }
                         )
-                    default:
-                        TextCategoryPlaceholderView(route: route)
+                    case let .waiting(categoryId):
+                        TextCategoryWaitingView(
+                            viewModel: makeWaitingViewModel(viewModel.selectedYear, categoryId),
+                            makeResultViewModel: { year, categoryId in
+                                makeResultViewModel(year, categoryId)
+                            }
+                        )
+                    case let .result(categoryId):
+                        TextCategoryResultView(
+                            viewModel: makeResultViewModel(viewModel.selectedYear, categoryId)
+                        )
                     }
                 }
         }

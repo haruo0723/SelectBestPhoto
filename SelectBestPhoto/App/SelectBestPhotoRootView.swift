@@ -13,7 +13,9 @@ struct SelectBestPhotoRootView: View {
                 viewModel: TextCategoryDependencies.makeListViewModel(),
                 makeSettingsViewModel: TextCategoryDependencies.makeSettingsViewModel(year:),
                 makeCandidateManagementViewModel: TextCategoryDependencies.makeCandidateManagementViewModel(year:categoryId:),
-                makeRankingInputViewModel: TextCategoryDependencies.makeRankingInputViewModel(year:categoryId:)
+                makeRankingInputViewModel: TextCategoryDependencies.makeRankingInputViewModel(year:categoryId:),
+                makeWaitingViewModel: TextCategoryDependencies.makeWaitingViewModel(year:categoryId:),
+                makeResultViewModel: TextCategoryDependencies.makeResultViewModel(year:categoryId:)
             )
             .tabItem {
                 Label("発表", systemImage: "trophy")
@@ -99,6 +101,44 @@ private enum TextCategoryDependencies {
         }
 
         return TextRankingInputViewModel(
+            repository: FirestoreTextCategoryRepository(),
+            pairContextProvider: FirebasePairContextProvider(),
+            year: year,
+            categoryId: categoryId
+        )
+    }
+
+    @MainActor
+    static func makeWaitingViewModel(year: Int, categoryId: String) -> TextCategoryWaitingViewModel {
+        guard FirebaseApp.app() != nil else {
+            return TextCategoryWaitingViewModel(
+                repository: UnavailableTextCategoryRepository(),
+                pairContextProvider: UnavailablePairContextProvider(),
+                year: year,
+                categoryId: categoryId
+            )
+        }
+
+        return TextCategoryWaitingViewModel(
+            repository: FirestoreTextCategoryRepository(),
+            pairContextProvider: FirebasePairContextProvider(),
+            year: year,
+            categoryId: categoryId
+        )
+    }
+
+    @MainActor
+    static func makeResultViewModel(year: Int, categoryId: String) -> TextCategoryResultViewModel {
+        guard FirebaseApp.app() != nil else {
+            return TextCategoryResultViewModel(
+                repository: UnavailableTextCategoryRepository(),
+                pairContextProvider: UnavailablePairContextProvider(),
+                year: year,
+                categoryId: categoryId
+            )
+        }
+
+        return TextCategoryResultViewModel(
             repository: FirestoreTextCategoryRepository(),
             pairContextProvider: FirebasePairContextProvider(),
             year: year,

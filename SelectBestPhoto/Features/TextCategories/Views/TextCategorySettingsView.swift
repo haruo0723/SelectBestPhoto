@@ -4,16 +4,22 @@ struct TextCategorySettingsView: View {
     @StateObject private var viewModel: TextCategorySettingsViewModel
     private let makeCandidateManagementViewModel: (String) -> TextCandidateManagementViewModel
     private let makeRankingInputViewModel: (String) -> TextRankingInputViewModel
+    private let makeWaitingViewModel: (Int, String) -> TextCategoryWaitingViewModel
+    private let makeResultViewModel: (Int, String) -> TextCategoryResultViewModel
     @State private var savedCategoryId: String?
 
     init(
         viewModel: TextCategorySettingsViewModel,
         makeCandidateManagementViewModel: @escaping (String) -> TextCandidateManagementViewModel,
-        makeRankingInputViewModel: @escaping (String) -> TextRankingInputViewModel
+        makeRankingInputViewModel: @escaping (String) -> TextRankingInputViewModel,
+        makeWaitingViewModel: @escaping (Int, String) -> TextCategoryWaitingViewModel,
+        makeResultViewModel: @escaping (Int, String) -> TextCategoryResultViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
         self.makeRankingInputViewModel = makeRankingInputViewModel
+        self.makeWaitingViewModel = makeWaitingViewModel
+        self.makeResultViewModel = makeResultViewModel
     }
 
     var body: some View {
@@ -113,7 +119,9 @@ struct TextCategorySettingsView: View {
             let categoryId = savedCategoryId ?? ""
             TextCandidateManagementView(
                 viewModel: makeCandidateManagementViewModel(categoryId),
-                makeRankingInputViewModel: makeRankingInputViewModel
+                makeRankingInputViewModel: makeRankingInputViewModel,
+                makeWaitingViewModel: makeWaitingViewModel,
+                makeResultViewModel: makeResultViewModel
             )
         }
     }
