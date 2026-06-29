@@ -40,11 +40,14 @@ struct TextCategoryRepositoryBoundaryTests {
     }
 
     @Test func pairContextProviderCanBeReplacedInTests() async throws {
-        let provider = FixedPairContextProvider(context: PairContext(pairId: "pair-1", userId: "user-a"))
+        let provider = FixedPairContextProvider(
+            context: PairContext(pairId: "pair-1", userId: "user-a", memberIds: ["user-a", "user-b"])
+        )
 
         let context = try await provider.currentContext()
 
-        #expect(context == PairContext(pairId: "pair-1", userId: "user-a"))
+        #expect(context == PairContext(pairId: "pair-1", userId: "user-a", memberIds: ["user-a", "user-b"]))
+        #expect(context.partnerUserId == "user-b")
     }
 
     @Test func repositoryProtocolCanBeImplementedByFakeForViewModelTests() async throws {

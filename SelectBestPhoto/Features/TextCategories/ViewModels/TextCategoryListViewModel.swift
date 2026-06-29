@@ -15,13 +15,6 @@ enum TextCategoryListScreenState: Equatable {
     case error(String)
 }
 
-struct TextCategoryInputStatusPair: Equatable {
-    var own: InputStatus
-    var partner: InputStatus
-
-    static let notStarted = TextCategoryInputStatusPair(own: .notStarted, partner: .notStarted)
-}
-
 struct TextCategoryListRowState: Identifiable, Equatable {
     var id: String {
         category.id
@@ -97,26 +90,22 @@ final class TextCategoryListViewModel: ObservableObject {
 
     private let repository: TextCategoryRepository
     private let pairContextProvider: PairContextProviding
-    private let currentUserId: String
-    private let partnerUserId: String
     private var inputStatuses: [String: TextCategoryInputStatusPair]
     private var observationTask: Task<Void, Never>?
+    private var currentUserId: String?
+    private var partnerUserId: String?
 
     init(
         repository: TextCategoryRepository,
         pairContextProvider: PairContextProviding,
         initialYear: Int = Calendar.current.component(.year, from: Date()),
         availableYears: [Int]? = nil,
-        currentUserId: String,
-        partnerUserId: String,
         inputStatuses: [String: TextCategoryInputStatusPair] = [:]
     ) {
         self.repository = repository
         self.pairContextProvider = pairContextProvider
         selectedYear = initialYear
         self.availableYears = availableYears ?? Array((initialYear - 2) ... (initialYear + 1)).reversed()
-        self.currentUserId = currentUserId
-        self.partnerUserId = partnerUserId
         self.inputStatuses = inputStatuses
     }
 
@@ -133,6 +122,12 @@ final class TextCategoryListViewModel: ObservableObject {
             }
             do {
                 let context = try await pairContextProvider.currentContext()
+                guard let partnerUserId = context.partnerUserId else {
+                    screenState = .error("ペア設定を確認できませんでした。")
+                    return
+                }
+                currentUserId = context.userId
+                self.partnerUserId = partnerUserId
                 for try await categories in repository.observeCategories(pairId: context.pairId, year: selectedYear) {
                     apply(categories: categories)
                 }
@@ -175,7 +170,7 @@ final class TextCategoryListViewModel: ObservableObject {
                 return lhs.updatedAt > rhs.updatedAt
             }
             .map { category in
-                let status = inputStatuses[category.id] ?? .notStarted
+                let status = statusPair(for: category)
                 return TextCategoryListRowState(
                     category: category,
                     ownInputStatus: status.own,
@@ -183,5 +178,21 @@ final class TextCategoryListViewModel: ObservableObject {
                 )
             }
         screenState = rows.isEmpty ? .empty : .loaded
+    }
+
+    private func statusPair(for category: TextCategory) -> TextCategoryInputStatusPair {
+        if category.status == .resultAvailable {
+            return .completed
+        }
+        if let status = inputStatuses[category.id] {
+            return status
+        }
+        guard let currentUserId, let partnerUserId else {
+            return .notStarted
+        }
+        return TextCategoryInputStatusPair(
+            own: category.inputStatuses[currentUserId] ?? .notStarted,
+            partner: category.inputStatuses[partnerUserId] ?? .notStarted
+        )
     }
 }

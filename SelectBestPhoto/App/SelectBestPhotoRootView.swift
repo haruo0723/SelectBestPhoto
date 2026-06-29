@@ -1,3 +1,4 @@
+import FirebaseCore
 import SwiftUI
 
 struct SelectBestPhotoRootView: View {
@@ -8,7 +9,7 @@ struct SelectBestPhotoRootView: View {
                     Label("ホーム", systemImage: "house")
                 }
 
-            TextCategoryListView(viewModel: TextCategoryDemoDependencies.makeListViewModel())
+            TextCategoryListView(viewModel: TextCategoryDependencies.makeListViewModel())
                 .tabItem {
                     Label("発表", systemImage: "trophy")
                 }
@@ -29,101 +30,33 @@ struct SelectBestPhotoRootView: View {
     }
 }
 
-private enum TextCategoryDemoDependencies {
+private enum TextCategoryDependencies {
     @MainActor
     static func makeListViewModel() -> TextCategoryListViewModel {
-        TextCategoryListViewModel(
-            repository: InMemoryTextCategoryRepository(categories: demoCategories),
-            pairContextProvider: StaticPairContextProvider(context: PairContext(pairId: "demo-pair", userId: "user-a")),
-            initialYear: 2026,
-            currentUserId: "user-a",
-            partnerUserId: "user-b",
-            inputStatuses: [
-                "category-confirmed": TextCategoryInputStatusPair(own: .inProgress, partner: .notStarted),
-                "category-waiting": TextCategoryInputStatusPair(own: .completed, partner: .inProgress),
-                "category-result": TextCategoryInputStatusPair(own: .completed, partner: .completed),
-            ]
-        )
-    }
+        guard FirebaseApp.app() != nil else {
+            return TextCategoryListViewModel(
+                repository: UnavailableTextCategoryRepository(),
+                pairContextProvider: UnavailablePairContextProvider()
+            )
+        }
 
-    private static var demoCategories: [TextCategory] {
-        [
-            makeCategory(
-                id: "category-draft",
-                name: "今年の名言",
-                status: .draft,
-                updatedAtOffset: 300
-            ),
-            makeCategory(
-                id: "category-confirmed",
-                name: "行ってよかった場所",
-                status: .confirmed,
-                updatedAtOffset: 200
-            ),
-            makeCategory(
-                id: "category-waiting",
-                name: "また食べたいもの",
-                status: .confirmed,
-                updatedAtOffset: 100
-            ),
-            makeCategory(
-                id: "category-result",
-                name: "今年いちばん笑ったこと",
-                status: .resultAvailable,
-                updatedAtOffset: 0
-            ),
-        ]
-    }
-
-    private static func makeCategory(
-        id: String,
-        name: String,
-        status: TextCategoryStatus,
-        updatedAtOffset: TimeInterval
-    ) -> TextCategory {
-        TextCategory(
-            id: id,
-            pairId: "demo-pair",
-            year: 2026,
-            name: name,
-            status: status,
-            settings: TextCategorySettings(
-                inputRankLimit: 3,
-                revealRankLimit: 2,
-                pointsByRank: [
-                    RankPoint(rank: 1, points: 10),
-                    RankPoint(rank: 2, points: 5),
-                    RankPoint(rank: 3, points: 1),
-                ]
-            ),
-            generation: 0,
-            createdByUserId: "user-a",
-            confirmedAt: status == .draft ? nil : Date(timeIntervalSince1970: 1_800_000_000),
-            createdAt: Date(timeIntervalSince1970: 1_800_000_000),
-            updatedAt: Date(timeIntervalSince1970: 1_800_000_000 + updatedAtOffset)
+        return TextCategoryListViewModel(
+            repository: FirestoreTextCategoryRepository(),
+            pairContextProvider: FirebasePairContextProvider()
         )
     }
 }
 
-private struct StaticPairContextProvider: PairContextProviding {
-    let context: PairContext
-
+private struct UnavailablePairContextProvider: PairContextProviding {
     func currentContext() async throws -> PairContext {
-        context
+        throw TextCategoryRepositoryError.pairContextUnavailable
     }
 }
 
-private final class InMemoryTextCategoryRepository: TextCategoryRepository, @unchecked Sendable {
-    private let categories: [TextCategory]
-
-    init(categories: [TextCategory]) {
-        self.categories = categories
-    }
-
-    func observeCategories(pairId: String, year: Int) -> AsyncThrowingStream<[TextCategory], Error> {
+private final class UnavailableTextCategoryRepository: TextCategoryRepository, @unchecked Sendable {
+    func observeCategories(pairId _: String, year _: Int) -> AsyncThrowingStream<[TextCategory], Error> {
         AsyncThrowingStream { continuation in
-            continuation.yield(categories.filter { $0.pairId == pairId && $0.year == year })
-            continuation.finish()
+            continuation.finish(throwing: TextCategoryRepositoryError.pairContextUnavailable)
         }
     }
 
@@ -146,10 +79,7 @@ private final class InMemoryTextCategoryRepository: TextCategoryRepository, @unc
     func completeInput(_: TextCategoryInput) async throws {}
 
     func loadResultContext(pairId _: String, year _: Int, categoryId _: String) async throws -> TextCategoryResultContext {
-        guard let category = categories.first else {
-            throw TextCategoryRepositoryError.categoryNotFound
-        }
-        return TextCategoryResultContext(category: category, candidates: [], inputs: [])
+        throw TextCategoryRepositoryError.pairContextUnavailable
     }
 
     func saveResultIfNeeded(_: TextCategoryResult) async throws {}

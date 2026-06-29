@@ -49,6 +49,7 @@ pairs/{pairId}
 | `pointsByRank` | array<map> | yes | `{ rank, points }` の配列。最大50件 | 🔵 |
 | `generation` | number | yes | リセット世代 | 🔵 |
 | `createdByUserId` | string | yes | 作成者uid | 🔵 |
+| `inputStatuses` | map<string, string> | no | 一覧表示用のユーザー別入力状態。選択内容は含めない | 🔵 |
 | `confirmedAt` | timestamp | no | 候補・設定確定日時 | 🔵 |
 | `createdAt` | timestamp | yes | 作成日時 | 🔵 |
 | `updatedAt` | timestamp | yes | 更新日時 | 🔵 |
@@ -61,6 +62,7 @@ pairs/{pairId}
 - `pointsByRank[].rank` は1〜50
 - `pointsByRank[].points` は1以上
 - `status == confirmed`以降は、候補と設定を変更しない
+- `inputStatuses` は `inputs/{userId}` の保存時に状態だけを同期し、相手の選択内容は含めない
 
 ## `candidates/{candidateId}` 🔵
 

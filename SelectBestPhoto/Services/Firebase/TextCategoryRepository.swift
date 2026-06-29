@@ -1,9 +1,22 @@
+import FirebaseAuth
+import FirebaseCore
 @preconcurrency import FirebaseFirestore
 import Foundation
 
 struct PairContext: Equatable {
     var pairId: String
     var userId: String
+    var memberIds: [String]
+
+    var partnerUserId: String? {
+        memberIds.first { $0 != userId }
+    }
+
+    init(pairId: String, userId: String, memberIds: [String]? = nil) {
+        self.pairId = pairId
+        self.userId = userId
+        self.memberIds = memberIds ?? [userId]
+    }
 }
 
 protocol PairContextProviding: Sendable {
@@ -37,10 +50,54 @@ struct TextCategoryResultContext: Equatable {
 enum TextCategoryRepositoryError: Error, Equatable {
     case categoryNotFound
     case pairMembersNotFound
+    case pairContextUnavailable
     case cannotModifyConfirmedCategory
     case insufficientCandidates(expected: Int, actual: Int)
     case inputsNotCompleted
     case invalidDocument(String)
+}
+
+final class FirebasePairContextProvider: PairContextProviding, @unchecked Sendable {
+    private let db: Firestore
+    private let auth: Auth
+    private let userDefaults: UserDefaults
+    private let pairIdKey: String
+
+    init(
+        db: Firestore = Firestore.firestore(),
+        auth: Auth = Auth.auth(),
+        userDefaults: UserDefaults = .standard,
+        pairIdKey: String = "SelectBestPhoto.currentPairId"
+    ) {
+        self.db = db
+        self.auth = auth
+        self.userDefaults = userDefaults
+        self.pairIdKey = pairIdKey
+    }
+
+    func currentContext() async throws -> PairContext {
+        guard FirebaseApp.app() != nil else {
+            throw TextCategoryRepositoryError.pairContextUnavailable
+        }
+        let user = try await currentUser()
+        guard let pairId = userDefaults.string(forKey: pairIdKey), !pairId.isEmpty else {
+            throw TextCategoryRepositoryError.pairContextUnavailable
+        }
+        let document = try await db.document("pairs/\(pairId)").getDocument()
+        guard let memberIds = document.data()?["memberIds"] as? [String],
+              memberIds.contains(user.uid)
+        else {
+            throw TextCategoryRepositoryError.pairMembersNotFound
+        }
+        return PairContext(pairId: pairId, userId: user.uid, memberIds: memberIds)
+    }
+
+    private func currentUser() async throws -> User {
+        if let user = auth.currentUser {
+            return user
+        }
+        return try await auth.signInAnonymously().user
+    }
 }
 
 enum TextCategoryRepositoryPolicy {
@@ -197,6 +254,7 @@ final class FirestoreTextCategoryRepository: TextCategoryRepository, @unchecked 
             "status": TextCategoryStatus.draft.rawValue,
             "generation": category.generation + 1,
             "confirmedAt": FieldValue.delete(),
+            "inputStatuses": FieldValue.delete(),
             "updatedAt": now(),
         ], forDocument: categoryReference)
         try await batch.commit()
@@ -274,12 +332,23 @@ final class FirestoreTextCategoryRepository: TextCategoryRepository, @unchecked 
             categoryGeneration: category.generation,
             candidateIds: Set(candidates.map(\.id))
         )
+        let savedAt = now()
         var savedInput = input
         savedInput.status = input.status == .completed ? .completed : .inProgress
-        savedInput.completedAt = input.status == .completed ? (input.completedAt ?? now()) : nil
-        savedInput.updatedAt = now()
-        try await inputRef(pairId: input.pairId, year: input.year, categoryId: input.categoryId, userId: input.userId)
-            .setData(Self.encodeInput(savedInput), merge: true)
+        savedInput.completedAt = input.status == .completed ? (input.completedAt ?? savedAt) : nil
+        savedInput.updatedAt = savedAt
+
+        let batch = db.batch()
+        batch.setData(
+            Self.encodeInput(savedInput),
+            forDocument: inputRef(pairId: input.pairId, year: input.year, categoryId: input.categoryId, userId: input.userId),
+            merge: true
+        )
+        batch.updateData([
+            "inputStatuses.\(input.userId)": savedInput.status.rawValue,
+            "updatedAt": savedAt,
+        ], forDocument: categoryRef(pairId: input.pairId, year: input.year, categoryId: input.categoryId))
+        try await batch.commit()
     }
 
     func completeInput(_ input: TextCategoryInput) async throws {
@@ -415,6 +484,7 @@ private extension FirestoreTextCategoryRepository {
             "pointsByRank": category.settings.pointsByRank.map(encodeRankPoint),
             "generation": category.generation,
             "createdByUserId": category.createdByUserId,
+            "inputStatuses": category.inputStatuses.mapValues(\.rawValue),
             "createdAt": category.createdAt,
             "updatedAt": category.updatedAt,
         ]
@@ -447,6 +517,7 @@ private extension FirestoreTextCategoryRepository {
             year: year,
             name: name,
             status: status,
+            inputStatuses: decodeInputStatuses(data["inputStatuses"], path: document.reference.path),
             settings: TextCategorySettings(
                 inputRankLimit: inputRankLimit,
                 revealRankLimit: revealRankLimit,
@@ -683,5 +754,20 @@ private extension FirestoreTextCategoryRepository {
             return nil
         }
         return try requiredDate(value, path: path)
+    }
+
+    static func decodeInputStatuses(_ value: Any?, path: String) throws -> [String: InputStatus] {
+        guard let value else {
+            return [:]
+        }
+        guard let data = value as? [String: String] else {
+            throw TextCategoryRepositoryError.invalidDocument(path)
+        }
+        return try data.reduce(into: [:]) { result, entry in
+            guard let status = InputStatus(rawValue: entry.value) else {
+                throw TextCategoryRepositoryError.invalidDocument(path)
+            }
+            result[entry.key] = status
+        }
     }
 }

@@ -42,13 +42,13 @@ struct TextCategoryListViewModelTests {
             makeCategory(id: "category-a", name: "今年の名言", status: .draft),
             makeCategory(id: "category-b", name: "行ってよかった場所", status: .confirmed),
         ])
-        let contextProvider = FixedListPairContextProvider(context: PairContext(pairId: "pair-1", userId: "user-a"))
+        let contextProvider = FixedListPairContextProvider(
+            context: PairContext(pairId: "pair-1", userId: "user-a", memberIds: ["user-a", "user-b"])
+        )
         let viewModel = await TextCategoryListViewModel(
             repository: repository,
             pairContextProvider: contextProvider,
             initialYear: 2026,
-            currentUserId: "user-a",
-            partnerUserId: "user-b",
             inputStatuses: [
                 "category-b": TextCategoryInputStatusPair(own: .completed, partner: .completed),
             ]
@@ -69,13 +69,13 @@ struct TextCategoryListViewModelTests {
 
     @Test func viewModelMarksEmptyWhenObservedCategoryListIsEmpty() async {
         let repository = FakeListRepository(categories: [])
-        let contextProvider = FixedListPairContextProvider(context: PairContext(pairId: "pair-1", userId: "user-a"))
+        let contextProvider = FixedListPairContextProvider(
+            context: PairContext(pairId: "pair-1", userId: "user-a", memberIds: ["user-a", "user-b"])
+        )
         let viewModel = await TextCategoryListViewModel(
             repository: repository,
             pairContextProvider: contextProvider,
-            initialYear: 2026,
-            currentUserId: "user-a",
-            partnerUserId: "user-b"
+            initialYear: 2026
         )
 
         await viewModel.load()
@@ -85,10 +85,43 @@ struct TextCategoryListViewModelTests {
         #expect(await viewModel.rows.isEmpty)
     }
 
+    @Test func viewModelBuildsRowsFromCategoryInputStatusSummary() async {
+        let repository = FakeListRepository(
+            categories: [
+                makeCategory(
+                    id: "category-a",
+                    name: "行ってよかった場所",
+                    status: .confirmed,
+                    inputStatuses: [
+                        "user-a": .completed,
+                        "user-b": .inProgress,
+                    ]
+                ),
+            ]
+        )
+        let contextProvider = FixedListPairContextProvider(
+            context: PairContext(pairId: "pair-1", userId: "user-a", memberIds: ["user-a", "user-b"])
+        )
+        let viewModel = await TextCategoryListViewModel(
+            repository: repository,
+            pairContextProvider: contextProvider,
+            initialYear: 2026
+        )
+
+        await viewModel.load()
+
+        let rows = await waitForRows(viewModel, expectedCount: 1)
+        await waitForRoute(viewModel, expectedRoute: .waiting("category-a"))
+        #expect(rows.first?.ownInputStatus == .completed)
+        #expect(rows.first?.partnerInputStatus == .inProgress)
+        #expect(await viewModel.rows.first?.route == .waiting("category-a"))
+    }
+
     private func makeCategory(
         id: String = "category-1",
         name: String = "今年の名言",
-        status: TextCategoryStatus
+        status: TextCategoryStatus,
+        inputStatuses: [String: InputStatus] = [:]
     ) -> TextCategory {
         TextCategory(
             id: id,
@@ -96,6 +129,7 @@ struct TextCategoryListViewModelTests {
             year: 2026,
             name: name,
             status: status,
+            inputStatuses: inputStatuses,
             settings: TextCategorySettings(
                 inputRankLimit: 3,
                 revealRankLimit: 2,
@@ -135,6 +169,19 @@ struct TextCategoryListViewModelTests {
     ) async {
         for _ in 0 ..< maxAttempts {
             if await viewModel.screenState == expectedState {
+                return
+            }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+    }
+
+    private func waitForRoute(
+        _ viewModel: TextCategoryListViewModel,
+        expectedRoute: TextCategoryListRoute,
+        maxAttempts: Int = 100
+    ) async {
+        for _ in 0 ..< maxAttempts {
+            if await viewModel.rows.first?.route == expectedRoute {
                 return
             }
             try? await Task.sleep(for: .milliseconds(10))
