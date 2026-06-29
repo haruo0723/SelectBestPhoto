@@ -13,9 +13,9 @@ struct SelectBestPhotoRootView: View {
                 viewModel: TextCategoryDependencies.makeListViewModel(),
                 makeSettingsViewModel: TextCategoryDependencies.makeSettingsViewModel(year:)
             )
-                .tabItem {
-                    Label("発表", systemImage: "trophy")
-                }
+            .tabItem {
+                Label("発表", systemImage: "trophy")
+            }
 
             NavigationStack {
                 List {

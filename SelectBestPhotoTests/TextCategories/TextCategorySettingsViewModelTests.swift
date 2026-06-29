@@ -180,6 +180,7 @@ private final class FakeSettingsRepository: TextCategoryRepository, @unchecked S
         }
         updatedCategories.append(category)
     }
+
     func confirmCategory(pairId _: String, year _: Int, categoryId _: String) async throws {}
     func resetCategory(pairId _: String, year _: Int, categoryId _: String) async throws {}
 
