@@ -115,6 +115,7 @@ private final class FakeWaitingRepository: TextCategoryRepository, @unchecked Se
             continuation.finish()
         }
     }
+
     func addCandidate(_: TextCandidate) async throws {}
     func updateCandidate(_: TextCandidate) async throws {}
     func deleteCandidate(pairId _: String, year _: Int, categoryId _: String, candidateId _: String) async throws {}
@@ -131,5 +132,7 @@ private final class FakeWaitingRepository: TextCategoryRepository, @unchecked Se
         throw TextCategoryRepositoryError.inputsNotCompleted
     }
 
-    func saveResultIfNeeded(_: TextCategoryResult) async throws {}
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult {
+        result
+    }
 }

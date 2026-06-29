@@ -348,5 +348,7 @@ private final class FakeCandidateManagementRepository: TextCategoryRepository, @
         TextCategoryResultContext(category: categories[0], candidates: candidateBatches.last ?? [], inputs: [])
     }
 
-    func saveResultIfNeeded(_: TextCategoryResult) async throws {}
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult {
+        result
+    }
 }

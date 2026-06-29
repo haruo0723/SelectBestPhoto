@@ -68,8 +68,8 @@ final class TextCategoryResultViewModel: ObservableObject {
                 candidates: resultContext.candidates,
                 inputs: resultContext.inputs
             )
-            try await repository.saveResultIfNeeded(result)
-            apply(result: result)
+            let savedResult = try await repository.saveResultIfNeeded(result)
+            apply(result: savedResult)
         } catch TextCategoryRepositoryError.inputsNotCompleted {
             screenState = .waitingForPartner
         } catch {

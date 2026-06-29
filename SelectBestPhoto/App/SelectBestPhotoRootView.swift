@@ -186,5 +186,7 @@ private final class UnavailableTextCategoryRepository: TextCategoryRepository, @
         throw TextCategoryRepositoryError.pairContextUnavailable
     }
 
-    func saveResultIfNeeded(_: TextCategoryResult) async throws {}
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult {
+        result
+    }
 }

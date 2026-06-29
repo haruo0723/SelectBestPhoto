@@ -17,6 +17,20 @@ struct TextCategoryResultViewModelTests {
         #expect(repository.savedResults.first?.id == "category-1-generation-0")
     }
 
+    @Test func resultViewModelDisplaysSavedResultWhenResultAlreadyExists() async {
+        let context = makeResultContext()
+        let savedResult = makeSavedResult()
+        let repository = FakeResultRepository(resultContext: context, existingResult: savedResult)
+        let viewModel = await makeResultViewModel(repository: repository)
+
+        await viewModel.load()
+
+        #expect(await viewModel.screenState == .loaded)
+        #expect(await viewModel.result == savedResult)
+        #expect(await viewModel.displayEntries.map(\.entry.candidateName) == ["保存済み2位", "保存済み1位"])
+        #expect(repository.savedResults.isEmpty)
+    }
+
     @Test func resultViewModelDoesNotExposeResultWhenInputsAreIncomplete() async {
         let repository = FakeResultRepository(resultContext: nil, error: TextCategoryRepositoryError.inputsNotCompleted)
         let viewModel = await makeResultViewModel(repository: repository)
@@ -105,6 +119,37 @@ private func makeResultInput(userId: String, selections: [RankedTextSelection]) 
     )
 }
 
+private func makeSavedResult() -> TextCategoryResult {
+    TextCategoryResult(
+        id: "category-1-generation-0",
+        pairId: "pair-1",
+        year: 2026,
+        categoryId: "category-1",
+        generation: 0,
+        entries: [
+            makeResultEntry(id: "saved-1", rank: 1, name: "保存済み1位", totalPoints: 999),
+            makeResultEntry(id: "saved-2", rank: 2, name: "保存済み2位", totalPoints: 998),
+        ],
+        sourceUserIds: ["user-a", "user-b"],
+        createdAt: Date(timeIntervalSince1970: 1_800_000_001)
+    )
+}
+
+private func makeResultEntry(id: String, rank: Int, name: String, totalPoints: Int) -> TextCategoryResultEntry {
+    TextCategoryResultEntry(
+        id: id,
+        rank: rank,
+        candidateId: id,
+        candidateName: name,
+        totalPoints: totalPoints,
+        userBreakdowns: [
+            TextCategoryUserPointBreakdown(userId: "user-a", selectedRank: rank, points: totalPoints),
+            TextCategoryUserPointBreakdown(userId: "user-b", selectedRank: nil, points: 0),
+        ],
+        imagePlaceholderKind: .futureImageSlot
+    )
+}
+
 private struct FixedResultPairContextProvider: PairContextProviding {
     func currentContext() async throws -> PairContext {
         PairContext(pairId: "pair-1", userId: "user-a", memberIds: ["user-a", "user-b"])
@@ -113,11 +158,17 @@ private struct FixedResultPairContextProvider: PairContextProviding {
 
 private final class FakeResultRepository: TextCategoryRepository, @unchecked Sendable {
     let resultContext: TextCategoryResultContext?
+    let existingResult: TextCategoryResult?
     let error: Error?
     private(set) var savedResults: [TextCategoryResult] = []
 
-    init(resultContext: TextCategoryResultContext?, error: Error? = nil) {
+    init(
+        resultContext: TextCategoryResultContext?,
+        existingResult: TextCategoryResult? = nil,
+        error: Error? = nil
+    ) {
         self.resultContext = resultContext
+        self.existingResult = existingResult
         self.error = error
     }
 
@@ -138,6 +189,7 @@ private final class FakeResultRepository: TextCategoryRepository, @unchecked Sen
             continuation.finish()
         }
     }
+
     func addCandidate(_: TextCandidate) async throws {}
     func updateCandidate(_: TextCandidate) async throws {}
     func deleteCandidate(pairId _: String, year _: Int, categoryId _: String, candidateId _: String) async throws {}
@@ -157,7 +209,11 @@ private final class FakeResultRepository: TextCategoryRepository, @unchecked Sen
         return resultContext
     }
 
-    func saveResultIfNeeded(_ result: TextCategoryResult) async throws {
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult {
+        if let existingResult, existingResult.generation == result.generation {
+            return existingResult
+        }
         savedResults.append(result)
+        return result
     }
 }
