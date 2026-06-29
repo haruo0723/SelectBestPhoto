@@ -54,6 +54,8 @@ final class TextRankingInputViewModel: ObservableObject {
     private var context: PairContext?
     private var categoryObservationTask: Task<Void, Never>?
     private var candidateObservationTask: Task<Void, Never>?
+    private var ownInputStatus: InputStatus = .notStarted
+    private var loadedInputGeneration: Int?
 
     var title: String {
         category?.name ?? "順位入力"
@@ -78,6 +80,7 @@ final class TextRankingInputViewModel: ObservableObject {
             return false
         }
         return category.status == .confirmed
+            && ownInputStatus != .completed
             && candidates.count >= category.settings.inputRankLimit
             && selectionsByRank.count == category.settings.inputRankLimit
             && selectedCandidateIds.count == category.settings.inputRankLimit
@@ -129,7 +132,7 @@ final class TextRankingInputViewModel: ObservableObject {
                         screenState = .error("部門を読み込めませんでした。")
                         return
                     }
-                    apply(category: category, context: context)
+                    try await apply(category: category, context: context)
                 }
             } catch {
                 if Task.isCancelled {
@@ -158,6 +161,10 @@ final class TextRankingInputViewModel: ObservableObject {
         guard selectionsByRank[rank] != nil else {
             return
         }
+        guard canEditRank(rank) else {
+            validationMessages = ["完了済みの入力は編集できません。"]
+            return
+        }
         selectionsByRank.removeValue(forKey: rank)
         await saveDraft()
     }
@@ -176,6 +183,7 @@ final class TextRankingInputViewModel: ObservableObject {
         saveState = .completing
         do {
             try await repository.completeInput(input)
+            ownInputStatus = .completed
             saveState = .idle
             completionDestination = nextDestination()
         } catch {
@@ -194,6 +202,10 @@ final class TextRankingInputViewModel: ObservableObject {
     }
 
     private func saveDraft() async {
+        guard ownInputStatus != .completed else {
+            validationMessages = ["完了済みの入力は編集できません。"]
+            return
+        }
         guard let input = makeInput(status: .inProgress) else {
             validationMessages = ["順位入力を読み込んでから保存してください。"]
             return
@@ -201,18 +213,27 @@ final class TextRankingInputViewModel: ObservableObject {
         saveState = .saving
         do {
             try await repository.saveInput(input)
+            ownInputStatus = .inProgress
             saveState = .idle
         } catch {
             saveState = .failed("入力を保存できませんでした。選択内容を残したまま再試行できます。")
         }
     }
 
-    private func apply(category: TextCategory, context: PairContext) {
+    private func apply(category: TextCategory, context: PairContext) async throws {
         self.category = category
+        let categoryOwnInputStatus = category.inputStatuses[context.userId] ?? .notStarted
+        if loadedInputGeneration != category.generation {
+            selectionsByRank = [:]
+            ownInputStatus = categoryOwnInputStatus
+        } else if categoryOwnInputStatus == .completed || ownInputStatus != .completed {
+            ownInputStatus = categoryOwnInputStatus
+        }
         if category.status == .draft {
             screenState = .error("候補と設定が確定されていません。")
             return
         }
+        try await restoreSavedInputIfNeeded(category: category, context: context)
         if candidateObservationTask == nil {
             candidateObservationTask = Task { [weak self] in
                 guard let self else {
@@ -234,6 +255,26 @@ final class TextRankingInputViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    private func restoreSavedInputIfNeeded(category: TextCategory, context: PairContext) async throws {
+        guard loadedInputGeneration != category.generation else {
+            return
+        }
+        loadedInputGeneration = category.generation
+        guard let input = try await repository.loadInput(
+            pairId: context.pairId,
+            year: year,
+            categoryId: category.id,
+            userId: context.userId
+        ) else {
+            return
+        }
+        guard input.generation == category.generation else {
+            return
+        }
+        ownInputStatus = input.status
+        selectionsByRank = Dictionary(uniqueKeysWithValues: input.selections.map { ($0.rank, $0.candidateId) })
     }
 
     private func apply(candidates: [TextCandidate]) {
@@ -276,7 +317,9 @@ final class TextRankingInputViewModel: ObservableObject {
         guard let category else {
             return false
         }
-        return category.status == .confirmed && 1 ... category.settings.inputRankLimit ~= rank
+        return category.status == .confirmed
+            && ownInputStatus != .completed
+            && 1 ... category.settings.inputRankLimit ~= rank
     }
 
     private func completionValidationMessages() -> [String] {
@@ -285,6 +328,9 @@ final class TextRankingInputViewModel: ObservableObject {
         }
         if category.status != .confirmed {
             return ["候補と設定が確定されていません。"]
+        }
+        if ownInputStatus == .completed {
+            return ["入力は完了済みです。"]
         }
         if candidates.count < category.settings.inputRankLimit {
             return ["候補数が入力対象順位に足りません。"]

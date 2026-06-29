@@ -138,6 +138,10 @@ private final class UnavailableTextCategoryRepository: TextCategoryRepository, @
     func saveInput(_: TextCategoryInput) async throws {}
     func completeInput(_: TextCategoryInput) async throws {}
 
+    func loadInput(pairId _: String, year _: Int, categoryId _: String, userId _: String) async throws -> TextCategoryInput? {
+        nil
+    }
+
     func loadResultContext(pairId _: String, year _: Int, categoryId _: String) async throws -> TextCategoryResultContext {
         throw TextCategoryRepositoryError.pairContextUnavailable
     }

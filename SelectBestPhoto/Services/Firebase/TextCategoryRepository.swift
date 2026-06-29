@@ -37,6 +37,7 @@ protocol TextCategoryRepository: Sendable {
 
     func saveInput(_ input: TextCategoryInput) async throws
     func completeInput(_ input: TextCategoryInput) async throws
+    func loadInput(pairId: String, year: Int, categoryId: String, userId: String) async throws -> TextCategoryInput?
     func loadResultContext(pairId: String, year: Int, categoryId: String) async throws -> TextCategoryResultContext
     func saveResultIfNeeded(_ result: TextCategoryResult) async throws
 }
@@ -357,6 +358,19 @@ final class FirestoreTextCategoryRepository: TextCategoryRepository, @unchecked 
         completedInput.completedAt = input.completedAt ?? now()
         completedInput.updatedAt = now()
         try await saveInput(completedInput)
+    }
+
+    func loadInput(pairId: String, year: Int, categoryId: String, userId: String) async throws -> TextCategoryInput? {
+        let document = try await inputRef(
+            pairId: pairId,
+            year: year,
+            categoryId: categoryId,
+            userId: userId
+        ).getDocument()
+        guard document.exists else {
+            return nil
+        }
+        return try Self.decodeInput(document)
     }
 
     func loadResultContext(pairId: String, year: Int, categoryId: String) async throws -> TextCategoryResultContext {

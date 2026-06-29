@@ -208,6 +208,10 @@ private final class FakeTextCategoryRepository: TextCategoryRepository, @uncheck
 
     func completeInput(_: TextCategoryInput) async throws {}
 
+    func loadInput(pairId _: String, year _: Int, categoryId _: String, userId _: String) async throws -> TextCategoryInput? {
+        nil
+    }
+
     func loadResultContext(pairId _: String, year _: Int, categoryId _: String) async throws -> TextCategoryResultContext {
         TextCategoryResultContext(category: categories[0], candidates: [], inputs: [])
     }
