@@ -130,6 +130,45 @@ struct TextCandidateManagementViewModelTests {
         #expect(await viewModel.confirmedCategoryId == "category-1")
     }
 
+    @Test func clearingConfirmedCategoryNavigationRemovesDestinationState() async {
+        let repository = FakeCandidateManagementRepository(
+            categories: [makeCategory(inputRankLimit: 2)],
+            candidates: [
+                makeCandidate(id: "candidate-1", name: "候補1"),
+                makeCandidate(id: "candidate-2", name: "候補2"),
+            ]
+        )
+        let viewModel = await makeViewModel(repository: repository)
+        await viewModel.load()
+        await waitForRows(viewModel, expectedCount: 2)
+        await viewModel.confirmCategory()
+
+        await MainActor.run {
+            viewModel.clearConfirmedCategoryNavigation()
+        }
+
+        #expect(await viewModel.confirmedCategoryId == nil)
+    }
+
+    @Test func loadRestartsCandidateObservationAfterReload() async {
+        let repository = FakeCandidateManagementRepository(
+            categories: [makeCategory(inputRankLimit: 2)],
+            candidateBatches: [
+                [],
+                [makeCandidate(id: "candidate-1", name: "候補1")],
+            ]
+        )
+        let viewModel = await makeViewModel(repository: repository)
+        await viewModel.load()
+        await waitForState(viewModel, expectedState: .loaded)
+
+        await viewModel.load()
+        await waitForRows(viewModel, expectedCount: 1)
+
+        #expect(repository.observeCandidatesCallCount == 2)
+        #expect(await viewModel.screenState == .loaded)
+    }
+
     @Test func confirmedCategoryDisablesCandidateMutation() async {
         let repository = FakeCandidateManagementRepository(
             categories: [makeCategory(inputRankLimit: 2, status: .confirmed)],
@@ -240,15 +279,20 @@ private struct FixedCandidateManagementPairContextProvider: PairContextProviding
 
 private final class FakeCandidateManagementRepository: TextCategoryRepository, @unchecked Sendable {
     let categories: [TextCategory]
-    let candidates: [TextCandidate]
+    private let candidateBatches: [[TextCandidate]]
     private(set) var addedCandidates: [TextCandidate] = []
     private(set) var updatedCandidates: [TextCandidate] = []
     private(set) var deletedCandidateIds: [String] = []
     private(set) var confirmedCategoryIds: [String] = []
+    private(set) var observeCandidatesCallCount = 0
 
-    init(categories: [TextCategory], candidates: [TextCandidate]) {
+    convenience init(categories: [TextCategory], candidates: [TextCandidate]) {
+        self.init(categories: categories, candidateBatches: [candidates])
+    }
+
+    init(categories: [TextCategory], candidateBatches: [[TextCandidate]]) {
         self.categories = categories
-        self.candidates = candidates
+        self.candidateBatches = candidateBatches.isEmpty ? [[]] : candidateBatches
     }
 
     func observeCategories(pairId: String, year: Int) -> AsyncThrowingStream<[TextCategory], Error> {
@@ -268,7 +312,10 @@ private final class FakeCandidateManagementRepository: TextCategoryRepository, @
     func resetCategory(pairId _: String, year _: Int, categoryId _: String) async throws {}
 
     func observeCandidates(pairId: String, year: Int, categoryId: String) -> AsyncThrowingStream<[TextCandidate], Error> {
-        AsyncThrowingStream { continuation in
+        let batchIndex = min(observeCandidatesCallCount, candidateBatches.count - 1)
+        observeCandidatesCallCount += 1
+        let candidates = candidateBatches[batchIndex]
+        return AsyncThrowingStream { continuation in
             continuation.yield(
                 candidates.filter {
                     $0.pairId == pairId && $0.year == year && $0.categoryId == categoryId
@@ -293,8 +340,12 @@ private final class FakeCandidateManagementRepository: TextCategoryRepository, @
     func saveInput(_: TextCategoryInput) async throws {}
     func completeInput(_: TextCategoryInput) async throws {}
 
+    func loadInput(pairId _: String, year _: Int, categoryId _: String, userId _: String) async throws -> TextCategoryInput? {
+        nil
+    }
+
     func loadResultContext(pairId _: String, year _: Int, categoryId _: String) async throws -> TextCategoryResultContext {
-        TextCategoryResultContext(category: categories[0], candidates: candidates, inputs: [])
+        TextCategoryResultContext(category: categories[0], candidates: candidateBatches.last ?? [], inputs: [])
     }
 
     func saveResultIfNeeded(_: TextCategoryResult) async throws {}

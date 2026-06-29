@@ -4,15 +4,18 @@ struct TextCategoryListView: View {
     @StateObject private var viewModel: TextCategoryListViewModel
     private let makeSettingsViewModel: (Int) -> TextCategorySettingsViewModel
     private let makeCandidateManagementViewModel: (Int, String) -> TextCandidateManagementViewModel
+    private let makeRankingInputViewModel: (Int, String) -> TextRankingInputViewModel
 
     init(
         viewModel: TextCategoryListViewModel,
         makeSettingsViewModel: @escaping (Int) -> TextCategorySettingsViewModel,
-        makeCandidateManagementViewModel: @escaping (Int, String) -> TextCandidateManagementViewModel
+        makeCandidateManagementViewModel: @escaping (Int, String) -> TextCandidateManagementViewModel,
+        makeRankingInputViewModel: @escaping (Int, String) -> TextRankingInputViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.makeSettingsViewModel = makeSettingsViewModel
         self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
+        self.makeRankingInputViewModel = makeRankingInputViewModel
     }
 
     var body: some View {
@@ -46,11 +49,21 @@ struct TextCategoryListView: View {
                             viewModel: makeSettingsViewModel(viewModel.selectedYear),
                             makeCandidateManagementViewModel: { categoryId in
                                 makeCandidateManagementViewModel(viewModel.selectedYear, categoryId)
+                            },
+                            makeRankingInputViewModel: { categoryId in
+                                makeRankingInputViewModel(viewModel.selectedYear, categoryId)
                             }
                         )
                     case let .candidateManagement(categoryId):
                         TextCandidateManagementView(
-                            viewModel: makeCandidateManagementViewModel(viewModel.selectedYear, categoryId)
+                            viewModel: makeCandidateManagementViewModel(viewModel.selectedYear, categoryId),
+                            makeRankingInputViewModel: { categoryId in
+                                makeRankingInputViewModel(viewModel.selectedYear, categoryId)
+                            }
+                        )
+                    case let .rankingInput(categoryId):
+                        TextRankingInputView(
+                            viewModel: makeRankingInputViewModel(viewModel.selectedYear, categoryId)
                         )
                     default:
                         TextCategoryPlaceholderView(route: route)

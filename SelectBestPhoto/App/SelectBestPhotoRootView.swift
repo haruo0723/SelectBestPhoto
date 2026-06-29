@@ -12,7 +12,8 @@ struct SelectBestPhotoRootView: View {
             TextCategoryListView(
                 viewModel: TextCategoryDependencies.makeListViewModel(),
                 makeSettingsViewModel: TextCategoryDependencies.makeSettingsViewModel(year:),
-                makeCandidateManagementViewModel: TextCategoryDependencies.makeCandidateManagementViewModel(year:categoryId:)
+                makeCandidateManagementViewModel: TextCategoryDependencies.makeCandidateManagementViewModel(year:categoryId:),
+                makeRankingInputViewModel: TextCategoryDependencies.makeRankingInputViewModel(year:categoryId:)
             )
             .tabItem {
                 Label("発表", systemImage: "trophy")
@@ -85,6 +86,25 @@ private enum TextCategoryDependencies {
             categoryId: categoryId
         )
     }
+
+    @MainActor
+    static func makeRankingInputViewModel(year: Int, categoryId: String) -> TextRankingInputViewModel {
+        guard FirebaseApp.app() != nil else {
+            return TextRankingInputViewModel(
+                repository: UnavailableTextCategoryRepository(),
+                pairContextProvider: UnavailablePairContextProvider(),
+                year: year,
+                categoryId: categoryId
+            )
+        }
+
+        return TextRankingInputViewModel(
+            repository: FirestoreTextCategoryRepository(),
+            pairContextProvider: FirebasePairContextProvider(),
+            year: year,
+            categoryId: categoryId
+        )
+    }
 }
 
 private struct UnavailablePairContextProvider: PairContextProviding {
@@ -117,6 +137,10 @@ private final class UnavailableTextCategoryRepository: TextCategoryRepository, @
     func deleteCandidate(pairId _: String, year _: Int, categoryId _: String, candidateId _: String) async throws {}
     func saveInput(_: TextCategoryInput) async throws {}
     func completeInput(_: TextCategoryInput) async throws {}
+
+    func loadInput(pairId _: String, year _: Int, categoryId _: String, userId _: String) async throws -> TextCategoryInput? {
+        nil
+    }
 
     func loadResultContext(pairId _: String, year _: Int, categoryId _: String) async throws -> TextCategoryResultContext {
         throw TextCategoryRepositoryError.pairContextUnavailable

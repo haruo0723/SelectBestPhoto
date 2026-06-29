@@ -3,9 +3,14 @@ import SwiftUI
 struct TextCandidateManagementView: View {
     @StateObject private var viewModel: TextCandidateManagementViewModel
     @State private var deletingCandidateId: String?
+    private let makeRankingInputViewModel: (String) -> TextRankingInputViewModel
 
-    init(viewModel: TextCandidateManagementViewModel) {
+    init(
+        viewModel: TextCandidateManagementViewModel,
+        makeRankingInputViewModel: @escaping (String) -> TextRankingInputViewModel
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.makeRankingInputViewModel = makeRankingInputViewModel
     }
 
     var body: some View {
@@ -56,10 +61,16 @@ struct TextCandidateManagementView: View {
             .navigationDestination(
                 isPresented: Binding(
                     get: { viewModel.confirmedCategoryId != nil },
-                    set: { _ in }
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.clearConfirmedCategoryNavigation()
+                        }
+                    }
                 )
             ) {
-                TextCategoryPlaceholderView(route: .rankingInput(viewModel.confirmedCategoryId ?? ""))
+                if let categoryId = viewModel.confirmedCategoryId {
+                    TextRankingInputView(viewModel: makeRankingInputViewModel(categoryId))
+                }
             }
             .task {
                 viewModel.load()

@@ -99,6 +99,8 @@ final class TextCandidateManagementViewModel: ObservableObject {
     func load() {
         categoryObservationTask?.cancel()
         candidateObservationTask?.cancel()
+        categoryObservationTask = nil
+        candidateObservationTask = nil
         screenState = .loading
         categoryObservationTask = Task { [weak self] in
             guard let self else {
@@ -240,6 +242,10 @@ final class TextCandidateManagementViewModel: ObservableObject {
         } catch {
             actionState = .failed("候補と設定を確定できませんでした。")
         }
+    }
+
+    func clearConfirmedCategoryNavigation() {
+        confirmedCategoryId = nil
     }
 
     private func apply(category: TextCategory, context: PairContext) {
