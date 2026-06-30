@@ -47,6 +47,7 @@ struct TextCategoryMVPFlowIntegrationTests {
             candidateViewModel.newCandidateName = "深夜に食べたラーメン"
         }
         await candidateViewModel.addCandidate()
+        await candidateViewModel.load()
         await waitForMVPFlowCandidates(candidateViewModel, expectedCount: 2)
 
         await candidateViewModel.confirmCategory()
