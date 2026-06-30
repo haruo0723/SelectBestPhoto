@@ -111,6 +111,7 @@ final class TextCategoryResultViewModel: ObservableObject {
             let context = try await pairContextProvider.currentContext()
             resetState = .resetting
             try await repository.resetCategory(pairId: context.pairId, year: year, categoryId: categoryId)
+            invalidateResultAfterReset()
             resetState = .idle
             resetDestinationCategoryId = categoryId
         } catch {
@@ -143,5 +144,11 @@ final class TextCategoryResultViewModel: ObservableObject {
             }
             .map(TextCategoryResultEntryState.init(entry:))
         screenState = .loaded
+    }
+
+    private func invalidateResultAfterReset() {
+        result = nil
+        displayEntries = []
+        screenState = .waitingForPartner
     }
 }

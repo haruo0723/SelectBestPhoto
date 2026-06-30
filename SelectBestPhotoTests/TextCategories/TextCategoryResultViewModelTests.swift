@@ -67,6 +67,9 @@ struct TextCategoryResultViewModelTests {
         #expect(repository.resetCalls == [ResetCall(pairId: "pair-1", year: 2026, categoryId: "category-1")])
         #expect(await viewModel.resetDestinationCategoryId == "category-1")
         #expect(await viewModel.resetState == .idle)
+        #expect(await viewModel.screenState == .waitingForPartner)
+        #expect(await viewModel.result == nil)
+        #expect(await viewModel.displayEntries.isEmpty)
     }
 
     @Test func failedResetKeepsCurrentResultAndShowsRetryableMessage() async {
