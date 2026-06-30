@@ -119,6 +119,9 @@ struct TextCategorySettingsView: View {
             let categoryId = savedCategoryId ?? ""
             TextCandidateManagementView(
                 viewModel: makeCandidateManagementViewModel(categoryId),
+                makeCandidateManagementViewModel: { _, categoryId in
+                    makeCandidateManagementViewModel(categoryId)
+                },
                 makeRankingInputViewModel: makeRankingInputViewModel,
                 makeWaitingViewModel: makeWaitingViewModel,
                 makeResultViewModel: makeResultViewModel

@@ -69,6 +69,7 @@ struct TextCategoryListView: View {
                     case let .candidateManagement(categoryId):
                         TextCandidateManagementView(
                             viewModel: makeCandidateManagementViewModel(viewModel.selectedYear, categoryId),
+                            makeCandidateManagementViewModel: makeCandidateManagementViewModel,
                             makeRankingInputViewModel: { categoryId in
                                 makeRankingInputViewModel(viewModel.selectedYear, categoryId)
                             },
@@ -82,6 +83,8 @@ struct TextCategoryListView: View {
                     case let .rankingInput(categoryId):
                         TextRankingInputView(
                             viewModel: makeRankingInputViewModel(viewModel.selectedYear, categoryId),
+                            makeCandidateManagementViewModel: makeCandidateManagementViewModel,
+                            makeRankingInputViewModel: makeRankingInputViewModel,
                             makeWaitingViewModel: { year, categoryId in
                                 makeWaitingViewModel(year, categoryId)
                             },
@@ -92,13 +95,20 @@ struct TextCategoryListView: View {
                     case let .waiting(categoryId):
                         TextCategoryWaitingView(
                             viewModel: makeWaitingViewModel(viewModel.selectedYear, categoryId),
+                            makeCandidateManagementViewModel: makeCandidateManagementViewModel,
+                            makeRankingInputViewModel: makeRankingInputViewModel,
+                            makeWaitingViewModel: makeWaitingViewModel,
                             makeResultViewModel: { year, categoryId in
                                 makeResultViewModel(year, categoryId)
                             }
                         )
                     case let .result(categoryId):
                         TextCategoryResultView(
-                            viewModel: makeResultViewModel(viewModel.selectedYear, categoryId)
+                            viewModel: makeResultViewModel(viewModel.selectedYear, categoryId),
+                            makeCandidateManagementViewModel: makeCandidateManagementViewModel,
+                            makeRankingInputViewModel: makeRankingInputViewModel,
+                            makeWaitingViewModel: makeWaitingViewModel,
+                            makeResultViewModel: makeResultViewModel
                         )
                     }
                 }

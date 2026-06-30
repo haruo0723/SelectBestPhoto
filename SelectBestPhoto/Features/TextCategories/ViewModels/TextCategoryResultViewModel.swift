@@ -7,6 +7,12 @@ enum TextCategoryResultScreenState: Equatable {
     case error(String)
 }
 
+enum TextCategoryResetState: Equatable {
+    case idle
+    case resetting
+    case failed(String)
+}
+
 struct TextCategoryResultEntryState: Identifiable, Equatable {
     var id: String {
         entry.id
@@ -25,6 +31,9 @@ final class TextCategoryResultViewModel: ObservableObject {
     @Published private(set) var category: TextCategory?
     @Published private(set) var result: TextCategoryResult?
     @Published private(set) var displayEntries: [TextCategoryResultEntryState] = []
+    @Published private(set) var resetState: TextCategoryResetState = .idle
+    @Published private(set) var resetDestinationCategoryId: String?
+    @Published var isResetConfirmationPresented = false
 
     let year: Int
     let categoryId: String
@@ -36,6 +45,10 @@ final class TextCategoryResultViewModel: ObservableObject {
 
     var title: String {
         category?.name ?? "結果"
+    }
+
+    var resetConfirmationMessage: String {
+        "この部門全体をリセットします。候補と部門設定は残りますが、2人分の順位入力、入力状態、生成済み結果は削除または無効化されます。"
     }
 
     init(
@@ -54,6 +67,7 @@ final class TextCategoryResultViewModel: ObservableObject {
 
     func load() async {
         screenState = .loading
+        resetState = .idle
         do {
             let context = try await pairContextProvider.currentContext()
             self.context = context
@@ -75,6 +89,37 @@ final class TextCategoryResultViewModel: ObservableObject {
         } catch {
             screenState = .error("結果を読み込めませんでした。")
         }
+    }
+
+    func requestResetConfirmation() {
+        guard screenState == .loaded else {
+            return
+        }
+        isResetConfirmationPresented = true
+    }
+
+    func cancelResetConfirmation() {
+        isResetConfirmationPresented = false
+    }
+
+    func confirmReset() async {
+        isResetConfirmationPresented = false
+        guard resetState != .resetting else {
+            return
+        }
+        do {
+            let context = try await pairContextProvider.currentContext()
+            resetState = .resetting
+            try await repository.resetCategory(pairId: context.pairId, year: year, categoryId: categoryId)
+            resetState = .idle
+            resetDestinationCategoryId = categoryId
+        } catch {
+            resetState = .failed("リセットできませんでした。現在の状態を再読み込みするか、もう一度お試しください。")
+        }
+    }
+
+    func clearResetDestination() {
+        resetDestinationCategoryId = nil
     }
 
     func userLabel(for userId: String) -> String {
