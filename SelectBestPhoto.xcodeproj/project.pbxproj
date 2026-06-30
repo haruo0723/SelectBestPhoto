@@ -43,6 +43,7 @@
 		000000000000000000000122 /* TextCategoryResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000221 /* TextCategoryResultView.swift */; };
 		000000000000000000000123 /* TextCategoryWaitingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000222 /* TextCategoryWaitingViewModelTests.swift */; };
 		000000000000000000000124 /* TextCategoryResultViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000223 /* TextCategoryResultViewModelTests.swift */; };
+		000000000000000000000125 /* TextCategoryMVPFlowIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000224 /* TextCategoryMVPFlowIntegrationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +99,7 @@
 		000000000000000000000221 /* TextCategoryResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultView.swift; sourceTree = "<group>"; };
 		000000000000000000000222 /* TextCategoryWaitingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryWaitingViewModelTests.swift; sourceTree = "<group>"; };
 		000000000000000000000223 /* TextCategoryResultViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultViewModelTests.swift; sourceTree = "<group>"; };
+		000000000000000000000224 /* TextCategoryMVPFlowIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryMVPFlowIntegrationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -280,6 +282,7 @@
 				00000000000000000000021D /* TextRankingInputViewModelTests.swift */,
 				000000000000000000000222 /* TextCategoryWaitingViewModelTests.swift */,
 				000000000000000000000223 /* TextCategoryResultViewModelTests.swift */,
+				000000000000000000000224 /* TextCategoryMVPFlowIntegrationTests.swift */,
 			);
 			path = TextCategories;
 			sourceTree = "<group>";
@@ -478,6 +481,7 @@
 				00000000000000000000011E /* TextRankingInputViewModelTests.swift in Sources */,
 				000000000000000000000123 /* TextCategoryWaitingViewModelTests.swift in Sources */,
 				000000000000000000000124 /* TextCategoryResultViewModelTests.swift in Sources */,
+				000000000000000000000125 /* TextCategoryMVPFlowIntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
