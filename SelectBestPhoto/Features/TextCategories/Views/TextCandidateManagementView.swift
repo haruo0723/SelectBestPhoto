@@ -4,13 +4,19 @@ struct TextCandidateManagementView: View {
     @StateObject private var viewModel: TextCandidateManagementViewModel
     @State private var deletingCandidateId: String?
     private let makeRankingInputViewModel: (String) -> TextRankingInputViewModel
+    private let makeWaitingViewModel: (Int, String) -> TextCategoryWaitingViewModel
+    private let makeResultViewModel: (Int, String) -> TextCategoryResultViewModel
 
     init(
         viewModel: TextCandidateManagementViewModel,
-        makeRankingInputViewModel: @escaping (String) -> TextRankingInputViewModel
+        makeRankingInputViewModel: @escaping (String) -> TextRankingInputViewModel,
+        makeWaitingViewModel: @escaping (Int, String) -> TextCategoryWaitingViewModel,
+        makeResultViewModel: @escaping (Int, String) -> TextCategoryResultViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
         self.makeRankingInputViewModel = makeRankingInputViewModel
+        self.makeWaitingViewModel = makeWaitingViewModel
+        self.makeResultViewModel = makeResultViewModel
     }
 
     var body: some View {
@@ -69,7 +75,11 @@ struct TextCandidateManagementView: View {
                 )
             ) {
                 if let categoryId = viewModel.confirmedCategoryId {
-                    TextRankingInputView(viewModel: makeRankingInputViewModel(categoryId))
+                    TextRankingInputView(
+                        viewModel: makeRankingInputViewModel(categoryId),
+                        makeWaitingViewModel: makeWaitingViewModel,
+                        makeResultViewModel: makeResultViewModel
+                    )
                 }
             }
             .task {

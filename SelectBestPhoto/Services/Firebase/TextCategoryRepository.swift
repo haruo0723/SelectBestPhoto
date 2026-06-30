@@ -39,7 +39,7 @@ protocol TextCategoryRepository: Sendable {
     func completeInput(_ input: TextCategoryInput) async throws
     func loadInput(pairId: String, year: Int, categoryId: String, userId: String) async throws -> TextCategoryInput?
     func loadResultContext(pairId: String, year: Int, categoryId: String) async throws -> TextCategoryResultContext
-    func saveResultIfNeeded(_ result: TextCategoryResult) async throws
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult
 }
 
 struct TextCategoryResultContext: Equatable {
@@ -387,7 +387,7 @@ final class FirestoreTextCategoryRepository: TextCategoryRepository, @unchecked 
         return TextCategoryResultContext(category: category, candidates: candidates, inputs: inputs)
     }
 
-    func saveResultIfNeeded(_ result: TextCategoryResult) async throws {
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult {
         let reference = resultRef(
             pairId: result.pairId,
             year: result.year,
@@ -403,7 +403,7 @@ final class FirestoreTextCategoryRepository: TextCategoryRepository, @unchecked 
                     "status": TextCategoryStatus.resultAvailable.rawValue,
                     "updatedAt": now(),
                 ])
-                return
+                return savedResult
             }
         }
         let batch = db.batch()
@@ -413,6 +413,7 @@ final class FirestoreTextCategoryRepository: TextCategoryRepository, @unchecked 
             "updatedAt": now(),
         ], forDocument: categoryReference)
         try await batch.commit()
+        return result
     }
 
     private func loadMemberIds(pairId: String) async throws -> [String] {

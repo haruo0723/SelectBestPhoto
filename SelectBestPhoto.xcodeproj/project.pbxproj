@@ -37,6 +37,12 @@
 		00000000000000000000011C /* RankSlotRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021B /* RankSlotRow.swift */; };
 		00000000000000000000011D /* TextRankingInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021C /* TextRankingInputView.swift */; };
 		00000000000000000000011E /* TextRankingInputViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021D /* TextRankingInputViewModelTests.swift */; };
+		00000000000000000000011F /* TextCategoryWaitingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021E /* TextCategoryWaitingViewModel.swift */; };
+		000000000000000000000120 /* TextCategoryResultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000021F /* TextCategoryResultViewModel.swift */; };
+		000000000000000000000121 /* TextCategoryWaitingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000220 /* TextCategoryWaitingView.swift */; };
+		000000000000000000000122 /* TextCategoryResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000221 /* TextCategoryResultView.swift */; };
+		000000000000000000000123 /* TextCategoryWaitingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000222 /* TextCategoryWaitingViewModelTests.swift */; };
+		000000000000000000000124 /* TextCategoryResultViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000223 /* TextCategoryResultViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +92,12 @@
 		00000000000000000000021B /* RankSlotRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RankSlotRow.swift; sourceTree = "<group>"; };
 		00000000000000000000021C /* TextRankingInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRankingInputView.swift; sourceTree = "<group>"; };
 		00000000000000000000021D /* TextRankingInputViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRankingInputViewModelTests.swift; sourceTree = "<group>"; };
+		00000000000000000000021E /* TextCategoryWaitingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryWaitingViewModel.swift; sourceTree = "<group>"; };
+		00000000000000000000021F /* TextCategoryResultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultViewModel.swift; sourceTree = "<group>"; };
+		000000000000000000000220 /* TextCategoryWaitingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryWaitingView.swift; sourceTree = "<group>"; };
+		000000000000000000000221 /* TextCategoryResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultView.swift; sourceTree = "<group>"; };
+		000000000000000000000222 /* TextCategoryWaitingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryWaitingViewModelTests.swift; sourceTree = "<group>"; };
+		000000000000000000000223 /* TextCategoryResultViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCategoryResultViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -266,6 +278,8 @@
 				000000000000000000000215 /* TextCategorySettingsViewModelTests.swift */,
 				000000000000000000000219 /* TextCandidateManagementViewModelTests.swift */,
 				00000000000000000000021D /* TextRankingInputViewModelTests.swift */,
+				000000000000000000000222 /* TextCategoryWaitingViewModelTests.swift */,
+				000000000000000000000223 /* TextCategoryResultViewModelTests.swift */,
 			);
 			path = TextCategories;
 			sourceTree = "<group>";
@@ -286,6 +300,8 @@
 				000000000000000000000214 /* TextCategorySettingsView.swift */,
 				000000000000000000000218 /* TextCandidateManagementView.swift */,
 				00000000000000000000021C /* TextRankingInputView.swift */,
+				000000000000000000000220 /* TextCategoryWaitingView.swift */,
+				000000000000000000000221 /* TextCategoryResultView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -297,6 +313,8 @@
 				000000000000000000000213 /* TextCategorySettingsViewModel.swift */,
 				000000000000000000000216 /* TextCandidateManagementViewModel.swift */,
 				00000000000000000000021A /* TextRankingInputViewModel.swift */,
+				00000000000000000000021E /* TextCategoryWaitingViewModel.swift */,
+				00000000000000000000021F /* TextCategoryResultViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -439,6 +457,10 @@
 				00000000000000000000011B /* TextRankingInputViewModel.swift in Sources */,
 				00000000000000000000011C /* RankSlotRow.swift in Sources */,
 				00000000000000000000011D /* TextRankingInputView.swift in Sources */,
+				00000000000000000000011F /* TextCategoryWaitingViewModel.swift in Sources */,
+				000000000000000000000120 /* TextCategoryResultViewModel.swift in Sources */,
+				000000000000000000000121 /* TextCategoryWaitingView.swift in Sources */,
+				000000000000000000000122 /* TextCategoryResultView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -454,6 +476,8 @@
 				000000000000000000000116 /* TextCategorySettingsViewModelTests.swift in Sources */,
 				00000000000000000000011A /* TextCandidateManagementViewModelTests.swift in Sources */,
 				00000000000000000000011E /* TextRankingInputViewModelTests.swift in Sources */,
+				000000000000000000000123 /* TextCategoryWaitingViewModelTests.swift in Sources */,
+				000000000000000000000124 /* TextCategoryResultViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -4,9 +4,17 @@ struct TextRankingInputView: View {
     @StateObject private var viewModel: TextRankingInputViewModel
     @State private var selectingRank: Int?
     @State private var candidateSearchText = ""
+    private let makeWaitingViewModel: (Int, String) -> TextCategoryWaitingViewModel
+    private let makeResultViewModel: (Int, String) -> TextCategoryResultViewModel
 
-    init(viewModel: TextRankingInputViewModel) {
+    init(
+        viewModel: TextRankingInputViewModel,
+        makeWaitingViewModel: @escaping (Int, String) -> TextCategoryWaitingViewModel,
+        makeResultViewModel: @escaping (Int, String) -> TextCategoryResultViewModel
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.makeWaitingViewModel = makeWaitingViewModel
+        self.makeResultViewModel = makeResultViewModel
     }
 
     var body: some View {
@@ -55,9 +63,16 @@ struct TextRankingInputView: View {
                 if let destination = viewModel.completionDestination {
                     switch destination {
                     case let .waiting(categoryId):
-                        TextCategoryPlaceholderView(route: .waiting(categoryId))
+                        TextCategoryWaitingView(
+                            viewModel: makeWaitingViewModel(viewModel.year, categoryId),
+                            makeResultViewModel: { year, categoryId in
+                                makeResultViewModel(year, categoryId)
+                            }
+                        )
                     case let .result(categoryId):
-                        TextCategoryPlaceholderView(route: .result(categoryId))
+                        TextCategoryResultView(
+                            viewModel: makeResultViewModel(viewModel.year, categoryId)
+                        )
                     }
                 }
             }

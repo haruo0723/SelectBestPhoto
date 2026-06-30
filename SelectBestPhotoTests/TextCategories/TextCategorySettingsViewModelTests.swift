@@ -205,5 +205,7 @@ private final class FakeSettingsRepository: TextCategoryRepository, @unchecked S
         throw TextCategoryRepositoryError.categoryNotFound
     }
 
-    func saveResultIfNeeded(_: TextCategoryResult) async throws {}
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult {
+        result
+    }
 }

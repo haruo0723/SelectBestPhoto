@@ -216,5 +216,7 @@ private final class FakeTextCategoryRepository: TextCategoryRepository, @uncheck
         TextCategoryResultContext(category: categories[0], candidates: [], inputs: [])
     }
 
-    func saveResultIfNeeded(_: TextCategoryResult) async throws {}
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult {
+        result
+    }
 }

@@ -295,5 +295,7 @@ private final class FakeRankingInputRepository: TextCategoryRepository, @uncheck
         TextCategoryResultContext(category: categories[0], candidates: candidates, inputs: completedInputs)
     }
 
-    func saveResultIfNeeded(_: TextCategoryResult) async throws {}
+    func saveResultIfNeeded(_ result: TextCategoryResult) async throws -> TextCategoryResult {
+        result
+    }
 }
