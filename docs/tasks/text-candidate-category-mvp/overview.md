@@ -43,7 +43,7 @@
 
 - [ ] Phase 1: ドメイン基盤
 - [x] Phase 2: Firestore同期
-- [ ] Phase 3: SwiftUI UI
+- [x] Phase 3: SwiftUI UI
 - [ ] Phase 4: 統合検証
 
 ## マイルストーン
@@ -111,7 +111,7 @@ TASK-0005 -> TASK-0006
 - [x] [TASK-0009: 候補管理と画像プレースホルダーを実装する](TASK-0009.md) - 8h (TDD) 🔵
 - [x] [TASK-0010: 順位入力画面を実装する](TASK-0010.md) - 8h (TDD) 🔵
 - [x] [TASK-0011: 待機画面と結果表示画面を実装する](TASK-0011.md) - 8h (TDD) 🔵
-- [ ] [TASK-0012: リセット確認と共通エラー表示を実装する](TASK-0012.md) - 6h (TDD) 🔵
+- [x] [TASK-0012: リセット確認と共通エラー表示を実装する](TASK-0012.md) - 6h (TDD) 🔵
 
 ### 依存関係
 

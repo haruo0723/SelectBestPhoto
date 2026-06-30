@@ -2,13 +2,22 @@ import SwiftUI
 
 struct TextCategoryWaitingView: View {
     @StateObject private var viewModel: TextCategoryWaitingViewModel
+    private let makeCandidateManagementViewModel: (Int, String) -> TextCandidateManagementViewModel
+    private let makeRankingInputViewModel: (Int, String) -> TextRankingInputViewModel
+    private let makeWaitingViewModel: (Int, String) -> TextCategoryWaitingViewModel
     private let makeResultViewModel: (Int, String) -> TextCategoryResultViewModel
 
     init(
         viewModel: TextCategoryWaitingViewModel,
+        makeCandidateManagementViewModel: @escaping (Int, String) -> TextCandidateManagementViewModel,
+        makeRankingInputViewModel: @escaping (Int, String) -> TextRankingInputViewModel,
+        makeWaitingViewModel: @escaping (Int, String) -> TextCategoryWaitingViewModel,
         makeResultViewModel: @escaping (Int, String) -> TextCategoryResultViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
+        self.makeRankingInputViewModel = makeRankingInputViewModel
+        self.makeWaitingViewModel = makeWaitingViewModel
         self.makeResultViewModel = makeResultViewModel
     }
 
@@ -36,7 +45,11 @@ struct TextCategoryWaitingView: View {
             ) {
                 if let categoryId = viewModel.resultCategoryId {
                     TextCategoryResultView(
-                        viewModel: makeResultViewModel(viewModel.year, categoryId)
+                        viewModel: makeResultViewModel(viewModel.year, categoryId),
+                        makeCandidateManagementViewModel: makeCandidateManagementViewModel,
+                        makeRankingInputViewModel: makeRankingInputViewModel,
+                        makeWaitingViewModel: makeWaitingViewModel,
+                        makeResultViewModel: makeResultViewModel
                     )
                 }
             }

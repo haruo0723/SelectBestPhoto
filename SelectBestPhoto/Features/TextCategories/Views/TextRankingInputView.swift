@@ -4,15 +4,21 @@ struct TextRankingInputView: View {
     @StateObject private var viewModel: TextRankingInputViewModel
     @State private var selectingRank: Int?
     @State private var candidateSearchText = ""
+    private let makeCandidateManagementViewModel: (Int, String) -> TextCandidateManagementViewModel
+    private let makeRankingInputViewModel: (Int, String) -> TextRankingInputViewModel
     private let makeWaitingViewModel: (Int, String) -> TextCategoryWaitingViewModel
     private let makeResultViewModel: (Int, String) -> TextCategoryResultViewModel
 
     init(
         viewModel: TextRankingInputViewModel,
+        makeCandidateManagementViewModel: @escaping (Int, String) -> TextCandidateManagementViewModel,
+        makeRankingInputViewModel: @escaping (Int, String) -> TextRankingInputViewModel,
         makeWaitingViewModel: @escaping (Int, String) -> TextCategoryWaitingViewModel,
         makeResultViewModel: @escaping (Int, String) -> TextCategoryResultViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
+        self.makeRankingInputViewModel = makeRankingInputViewModel
         self.makeWaitingViewModel = makeWaitingViewModel
         self.makeResultViewModel = makeResultViewModel
     }
@@ -65,13 +71,20 @@ struct TextRankingInputView: View {
                     case let .waiting(categoryId):
                         TextCategoryWaitingView(
                             viewModel: makeWaitingViewModel(viewModel.year, categoryId),
+                            makeCandidateManagementViewModel: makeCandidateManagementViewModel,
+                            makeRankingInputViewModel: makeRankingInputViewModel,
+                            makeWaitingViewModel: makeWaitingViewModel,
                             makeResultViewModel: { year, categoryId in
                                 makeResultViewModel(year, categoryId)
                             }
                         )
                     case let .result(categoryId):
                         TextCategoryResultView(
-                            viewModel: makeResultViewModel(viewModel.year, categoryId)
+                            viewModel: makeResultViewModel(viewModel.year, categoryId),
+                            makeCandidateManagementViewModel: makeCandidateManagementViewModel,
+                            makeRankingInputViewModel: makeRankingInputViewModel,
+                            makeWaitingViewModel: makeWaitingViewModel,
+                            makeResultViewModel: makeResultViewModel
                         )
                     }
                 }

@@ -2,15 +2,39 @@ import SwiftUI
 
 struct TextCategoryResultView: View {
     @StateObject private var viewModel: TextCategoryResultViewModel
+    private let makeCandidateManagementViewModel: (Int, String) -> TextCandidateManagementViewModel
+    private let makeRankingInputViewModel: (Int, String) -> TextRankingInputViewModel
+    private let makeWaitingViewModel: (Int, String) -> TextCategoryWaitingViewModel
+    private let makeResultViewModel: (Int, String) -> TextCategoryResultViewModel
 
-    init(viewModel: TextCategoryResultViewModel) {
+    init(
+        viewModel: TextCategoryResultViewModel,
+        makeCandidateManagementViewModel: @escaping (Int, String) -> TextCandidateManagementViewModel,
+        makeRankingInputViewModel: @escaping (Int, String) -> TextRankingInputViewModel,
+        makeWaitingViewModel: @escaping (Int, String) -> TextCategoryWaitingViewModel,
+        makeResultViewModel: @escaping (Int, String) -> TextCategoryResultViewModel
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
+        self.makeRankingInputViewModel = makeRankingInputViewModel
+        self.makeWaitingViewModel = makeWaitingViewModel
+        self.makeResultViewModel = makeResultViewModel
     }
 
     var body: some View {
         content
             .navigationTitle("結果")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(role: .destructive) {
+                        viewModel.requestResetConfirmation()
+                    } label: {
+                        Label("リセット", systemImage: "arrow.counterclockwise")
+                    }
+                    .disabled(viewModel.screenState != .loaded || viewModel.resetState == .resetting)
+                    .accessibilityIdentifier("text-category-result-reset")
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         Task {
@@ -19,6 +43,44 @@ struct TextCategoryResultView: View {
                     } label: {
                         Label("再表示", systemImage: "arrow.clockwise")
                     }
+                }
+            }
+            .confirmationDialog(
+                "部門全体をリセットしますか?",
+                isPresented: $viewModel.isResetConfirmationPresented,
+                titleVisibility: .visible
+            ) {
+                Button("リセット", role: .destructive) {
+                    Task {
+                        await viewModel.confirmReset()
+                    }
+                }
+                Button("キャンセル", role: .cancel) {
+                    viewModel.cancelResetConfirmation()
+                }
+            } message: {
+                Text(viewModel.resetConfirmationMessage)
+            }
+            .navigationDestination(
+                isPresented: Binding(
+                    get: { viewModel.resetDestinationCategoryId != nil },
+                    set: { isPresented in
+                        if !isPresented {
+                            viewModel.clearResetDestination()
+                        }
+                    }
+                )
+            ) {
+                if let categoryId = viewModel.resetDestinationCategoryId {
+                    TextCandidateManagementView(
+                        viewModel: makeCandidateManagementViewModel(viewModel.year, categoryId),
+                        makeCandidateManagementViewModel: makeCandidateManagementViewModel,
+                        makeRankingInputViewModel: { categoryId in
+                            makeRankingInputViewModel(viewModel.year, categoryId)
+                        },
+                        makeWaitingViewModel: makeWaitingViewModel,
+                        makeResultViewModel: makeResultViewModel
+                    )
                 }
             }
             .task {
@@ -48,6 +110,8 @@ struct TextCategoryResultView: View {
                             .accessibilityIdentifier("text-category-result-entry-\(state.entry.rank)")
                     }
                 }
+
+                resetMessageSection
             }
             .listStyle(.insetGrouped)
         case .waitingForPartner:
@@ -75,6 +139,31 @@ struct TextCategoryResultView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var resetMessageSection: some View {
+        switch viewModel.resetState {
+        case .idle:
+            EmptyView()
+        case .resetting:
+            Section {
+                Label("リセット中", systemImage: "arrow.counterclockwise")
+                    .foregroundStyle(.secondary)
+            }
+        case let .failed(message):
+            Section {
+                Label(message, systemImage: "wifi.exclamationmark")
+                    .foregroundStyle(.red)
+                Button {
+                    Task {
+                        await viewModel.load()
+                    }
+                } label: {
+                    Label("現在の状態を再読み込み", systemImage: "arrow.clockwise")
+                }
             }
         }
     }

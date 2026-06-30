@@ -42,6 +42,51 @@ struct TextCategoryResultViewModelTests {
         #expect(repository.savedResults.isEmpty)
     }
 
+    @Test func cancelingResetConfirmationDoesNotCallRepositoryAndKeepsResult() async {
+        let repository = FakeResultRepository(resultContext: makeResultContext())
+        let viewModel = await makeResultViewModel(repository: repository)
+        await viewModel.load()
+
+        await viewModel.requestResetConfirmation()
+        await viewModel.cancelResetConfirmation()
+
+        #expect(repository.resetCalls.isEmpty)
+        #expect(await viewModel.isResetConfirmationPresented == false)
+        #expect(await viewModel.screenState == .loaded)
+        #expect(await viewModel.result != nil)
+    }
+
+    @Test func confirmedResetRoutesBackToCandidateManagement() async {
+        let repository = FakeResultRepository(resultContext: makeResultContext())
+        let viewModel = await makeResultViewModel(repository: repository)
+        await viewModel.load()
+
+        await viewModel.requestResetConfirmation()
+        await viewModel.confirmReset()
+
+        #expect(repository.resetCalls == [ResetCall(pairId: "pair-1", year: 2026, categoryId: "category-1")])
+        #expect(await viewModel.resetDestinationCategoryId == "category-1")
+        #expect(await viewModel.resetState == .idle)
+        #expect(await viewModel.screenState == .waitingForPartner)
+        #expect(await viewModel.result == nil)
+        #expect(await viewModel.displayEntries.isEmpty)
+    }
+
+    @Test func failedResetKeepsCurrentResultAndShowsRetryableMessage() async {
+        let repository = FakeResultRepository(resultContext: makeResultContext(), resetError: TextCategoryRepositoryError.categoryNotFound)
+        let viewModel = await makeResultViewModel(repository: repository)
+        await viewModel.load()
+
+        await viewModel.requestResetConfirmation()
+        await viewModel.confirmReset()
+
+        #expect(repository.resetCalls.count == 1)
+        #expect(await viewModel.screenState == .loaded)
+        #expect(await viewModel.result != nil)
+        #expect(await viewModel.resetDestinationCategoryId == nil)
+        #expect(await viewModel.resetState == .failed("リセットできませんでした。現在の状態を再読み込みするか、もう一度お試しください。"))
+    }
+
     @MainActor
     private func makeResultViewModel(repository: FakeResultRepository) -> TextCategoryResultViewModel {
         TextCategoryResultViewModel(
@@ -156,20 +201,30 @@ private struct FixedResultPairContextProvider: PairContextProviding {
     }
 }
 
+private struct ResetCall: Equatable {
+    var pairId: String
+    var year: Int
+    var categoryId: String
+}
+
 private final class FakeResultRepository: TextCategoryRepository, @unchecked Sendable {
     let resultContext: TextCategoryResultContext?
     let existingResult: TextCategoryResult?
     let error: Error?
+    let resetError: Error?
     private(set) var savedResults: [TextCategoryResult] = []
+    private(set) var resetCalls: [ResetCall] = []
 
     init(
         resultContext: TextCategoryResultContext?,
         existingResult: TextCategoryResult? = nil,
-        error: Error? = nil
+        error: Error? = nil,
+        resetError: Error? = nil
     ) {
         self.resultContext = resultContext
         self.existingResult = existingResult
         self.error = error
+        self.resetError = resetError
     }
 
     func observeCategories(pairId _: String, year _: Int) -> AsyncThrowingStream<[TextCategory], Error> {
@@ -182,7 +237,14 @@ private final class FakeResultRepository: TextCategoryRepository, @unchecked Sen
     func createCategory(_: TextCategory) async throws {}
     func updateDraftCategory(_: TextCategory) async throws {}
     func confirmCategory(pairId _: String, year _: Int, categoryId _: String) async throws {}
-    func resetCategory(pairId _: String, year _: Int, categoryId _: String) async throws {}
+
+    func resetCategory(pairId: String, year: Int, categoryId: String) async throws {
+        resetCalls.append(ResetCall(pairId: pairId, year: year, categoryId: categoryId))
+        if let resetError {
+            throw resetError
+        }
+    }
+
     func observeCandidates(pairId _: String, year _: Int, categoryId _: String) -> AsyncThrowingStream<[TextCandidate], Error> {
         AsyncThrowingStream { continuation in
             continuation.yield([])

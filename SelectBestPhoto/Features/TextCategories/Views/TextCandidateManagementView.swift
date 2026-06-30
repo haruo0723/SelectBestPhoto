@@ -3,17 +3,20 @@ import SwiftUI
 struct TextCandidateManagementView: View {
     @StateObject private var viewModel: TextCandidateManagementViewModel
     @State private var deletingCandidateId: String?
+    private let makeCandidateManagementViewModel: (Int, String) -> TextCandidateManagementViewModel
     private let makeRankingInputViewModel: (String) -> TextRankingInputViewModel
     private let makeWaitingViewModel: (Int, String) -> TextCategoryWaitingViewModel
     private let makeResultViewModel: (Int, String) -> TextCategoryResultViewModel
 
     init(
         viewModel: TextCandidateManagementViewModel,
+        makeCandidateManagementViewModel: @escaping (Int, String) -> TextCandidateManagementViewModel,
         makeRankingInputViewModel: @escaping (String) -> TextRankingInputViewModel,
         makeWaitingViewModel: @escaping (Int, String) -> TextCategoryWaitingViewModel,
         makeResultViewModel: @escaping (Int, String) -> TextCategoryResultViewModel
     ) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.makeCandidateManagementViewModel = makeCandidateManagementViewModel
         self.makeRankingInputViewModel = makeRankingInputViewModel
         self.makeWaitingViewModel = makeWaitingViewModel
         self.makeResultViewModel = makeResultViewModel
@@ -77,6 +80,10 @@ struct TextCandidateManagementView: View {
                 if let categoryId = viewModel.confirmedCategoryId {
                     TextRankingInputView(
                         viewModel: makeRankingInputViewModel(categoryId),
+                        makeCandidateManagementViewModel: makeCandidateManagementViewModel,
+                        makeRankingInputViewModel: { _, categoryId in
+                            makeRankingInputViewModel(categoryId)
+                        },
                         makeWaitingViewModel: makeWaitingViewModel,
                         makeResultViewModel: makeResultViewModel
                     )
