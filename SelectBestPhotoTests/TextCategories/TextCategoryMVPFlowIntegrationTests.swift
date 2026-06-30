@@ -8,129 +8,162 @@ struct TextCategoryMVPFlowIntegrationTests {
         let userAProvider = FixedMVPFlowPairContextProvider(userId: "user-a")
         let userBProvider = FixedMVPFlowPairContextProvider(userId: "user-b")
 
-        let settingsViewModel = await TextCategorySettingsViewModel(
+        await createAndConfirmMVPFlowCategory(repository: repository, pairContextProvider: userAProvider)
+        await completeMVPFlowInput(
             repository: repository,
             pairContextProvider: userAProvider,
-            year: 2026,
-            now: { Date(timeIntervalSince1970: 1_800_000_000) },
-            makeCategoryId: { "category-1" }
+            firstCandidateId: "candidate-1",
+            secondCandidateId: "candidate-2",
+            expectedDestination: .waiting("category-1")
         )
-        await MainActor.run {
-            settingsViewModel.draft.name = "今年の名言"
-            settingsViewModel.setInputRankLimit(2)
-            settingsViewModel.setRevealRankLimit(2)
-            settingsViewModel.setPoints(10, forRank: 1)
-            settingsViewModel.setPoints(5, forRank: 2)
-        }
-
-        await settingsViewModel.saveDraft()
-
-        #expect(await settingsViewModel.saveState == .saved(categoryId: "category-1"))
-        #expect(repository.category?.status == .draft)
-
-        let candidateViewModel = await TextCandidateManagementViewModel(
+        await assertMVPFlowWaitsForPartner(repository: repository, pairContextProvider: userAProvider)
+        await completeMVPFlowInput(
             repository: repository,
-            pairContextProvider: userAProvider,
-            year: 2026,
-            categoryId: "category-1",
-            now: { Date(timeIntervalSince1970: 1_800_000_100) },
-            makeCandidateId: repository.nextCandidateId
+            pairContextProvider: userBProvider,
+            firstCandidateId: "candidate-2",
+            secondCandidateId: "candidate-1",
+            expectedDestination: .result("category-1")
         )
-        await candidateViewModel.load()
-        await waitForMVPFlowCandidates(candidateViewModel, expectedCount: 0)
-
-        await MainActor.run {
-            candidateViewModel.newCandidateName = "初日の出を見に行った"
-        }
-        await candidateViewModel.addCandidate()
-        await MainActor.run {
-            candidateViewModel.newCandidateName = "深夜に食べたラーメン"
-        }
-        await candidateViewModel.addCandidate()
-        await candidateViewModel.load()
-        await waitForMVPFlowCandidates(candidateViewModel, expectedCount: 2)
-
-        await candidateViewModel.confirmCategory()
-
-        #expect(await candidateViewModel.confirmedCategoryId == "category-1")
-        #expect(repository.category?.status == .confirmed)
-
-        let userARankingViewModel = await makeMVPFlowRankingViewModel(
-            repository: repository,
-            pairContextProvider: userAProvider
-        )
-        await userARankingViewModel.load()
-        await waitForMVPFlowRankingState(userARankingViewModel, expectedState: .loaded)
-
-        await userARankingViewModel.selectCandidate("candidate-1", forRank: 1)
-        await userARankingViewModel.selectCandidate("candidate-2", forRank: 2)
-        await userARankingViewModel.completeInput()
-
-        #expect(await userARankingViewModel.completionDestination == .waiting("category-1"))
-
-        let waitingResultViewModel = await makeMVPFlowResultViewModel(
-            repository: repository,
-            pairContextProvider: userAProvider
-        )
-        await waitingResultViewModel.load()
-
-        #expect(await waitingResultViewModel.screenState == .waitingForPartner)
-        #expect(await waitingResultViewModel.displayEntries.isEmpty)
-
-        let userBRankingViewModel = await makeMVPFlowRankingViewModel(
-            repository: repository,
-            pairContextProvider: userBProvider
-        )
-        await userBRankingViewModel.load()
-        await waitForMVPFlowRankingState(userBRankingViewModel, expectedState: .loaded)
-
-        await userBRankingViewModel.selectCandidate("candidate-2", forRank: 1)
-        await userBRankingViewModel.selectCandidate("candidate-1", forRank: 2)
-        await userBRankingViewModel.completeInput()
-
-        #expect(await userBRankingViewModel.completionDestination == .result("category-1"))
-
-        let resultViewModel = await makeMVPFlowResultViewModel(
-            repository: repository,
-            pairContextProvider: userAProvider
-        )
-        await resultViewModel.load()
-
-        #expect(await resultViewModel.screenState == .loaded)
-        #expect(await resultViewModel.displayEntries.map(\.entry.candidateName) == [
-            "深夜に食べたラーメン",
-            "初日の出を見に行った",
-        ])
-        #expect(await resultViewModel.displayEntries.map(\.entry.totalPoints) == [15, 15])
-        #expect(repository.savedResults.count == 1)
-
-        await resultViewModel.requestResetConfirmation()
-        await resultViewModel.confirmReset()
-
-        #expect(await resultViewModel.resetDestinationCategoryId == "category-1")
-        #expect(repository.category?.status == .draft)
-        #expect(repository.category?.generation == 1)
-        #expect(repository.inputs.isEmpty)
-        #expect(repository.savedResults.isEmpty)
-        #expect(repository.candidates.map(\.name) == [
-            "初日の出を見に行った",
-            "深夜に食べたラーメン",
-        ])
-
-        let reEntryCandidateViewModel = await TextCandidateManagementViewModel(
-            repository: repository,
-            pairContextProvider: userAProvider,
-            year: 2026,
-            categoryId: "category-1",
-            now: { Date(timeIntervalSince1970: 1_800_000_300) },
-            makeCandidateId: repository.nextCandidateId
-        )
-        await reEntryCandidateViewModel.load()
-        await waitForMVPFlowCandidates(reEntryCandidateViewModel, expectedCount: 2)
-
-        #expect(await reEntryCandidateViewModel.isEditable == true)
-        #expect(await reEntryCandidateViewModel.canConfirm == true)
+        await assertMVPFlowResultAndReset(repository: repository, pairContextProvider: userAProvider)
+        await assertMVPFlowCanReEnterAfterReset(repository: repository, pairContextProvider: userAProvider)
     }
+}
+
+private func createAndConfirmMVPFlowCategory(
+    repository: InMemoryMVPFlowRepository,
+    pairContextProvider: FixedMVPFlowPairContextProvider
+) async {
+    let settingsViewModel = await TextCategorySettingsViewModel(
+        repository: repository,
+        pairContextProvider: pairContextProvider,
+        year: 2026,
+        now: { Date(timeIntervalSince1970: 1_800_000_000) },
+        makeCategoryId: { "category-1" }
+    )
+    await MainActor.run {
+        settingsViewModel.draft.name = "今年の名言"
+        settingsViewModel.setInputRankLimit(2)
+        settingsViewModel.setRevealRankLimit(2)
+        settingsViewModel.setPoints(10, forRank: 1)
+        settingsViewModel.setPoints(5, forRank: 2)
+    }
+    await settingsViewModel.saveDraft()
+
+    #expect(await settingsViewModel.saveState == .saved(categoryId: "category-1"))
+    #expect(repository.category?.status == .draft)
+
+    let candidateViewModel = await TextCandidateManagementViewModel(
+        repository: repository,
+        pairContextProvider: pairContextProvider,
+        year: 2026,
+        categoryId: "category-1",
+        now: { Date(timeIntervalSince1970: 1_800_000_100) },
+        makeCandidateId: repository.nextCandidateId
+    )
+    await candidateViewModel.load()
+    await waitForMVPFlowCandidates(candidateViewModel, expectedCount: 0)
+
+    await MainActor.run {
+        candidateViewModel.newCandidateName = "初日の出を見に行った"
+    }
+    await candidateViewModel.addCandidate()
+    await MainActor.run {
+        candidateViewModel.newCandidateName = "深夜に食べたラーメン"
+    }
+    await candidateViewModel.addCandidate()
+    await candidateViewModel.load()
+    await waitForMVPFlowCandidates(candidateViewModel, expectedCount: 2)
+
+    await candidateViewModel.confirmCategory()
+
+    #expect(await candidateViewModel.confirmedCategoryId == "category-1")
+    #expect(repository.category?.status == .confirmed)
+}
+
+private func completeMVPFlowInput(
+    repository: InMemoryMVPFlowRepository,
+    pairContextProvider: FixedMVPFlowPairContextProvider,
+    firstCandidateId: String,
+    secondCandidateId: String,
+    expectedDestination: TextRankingInputCompletionDestination
+) async {
+    let viewModel = await makeMVPFlowRankingViewModel(
+        repository: repository,
+        pairContextProvider: pairContextProvider
+    )
+    await viewModel.load()
+    await waitForMVPFlowRankingState(viewModel, expectedState: .loaded)
+
+    await viewModel.selectCandidate(firstCandidateId, forRank: 1)
+    await viewModel.selectCandidate(secondCandidateId, forRank: 2)
+    await viewModel.completeInput()
+
+    #expect(await viewModel.completionDestination == expectedDestination)
+}
+
+private func assertMVPFlowWaitsForPartner(
+    repository: InMemoryMVPFlowRepository,
+    pairContextProvider: FixedMVPFlowPairContextProvider
+) async {
+    let viewModel = await makeMVPFlowResultViewModel(
+        repository: repository,
+        pairContextProvider: pairContextProvider
+    )
+    await viewModel.load()
+
+    #expect(await viewModel.screenState == .waitingForPartner)
+    #expect(await viewModel.displayEntries.isEmpty)
+}
+
+private func assertMVPFlowResultAndReset(
+    repository: InMemoryMVPFlowRepository,
+    pairContextProvider: FixedMVPFlowPairContextProvider
+) async {
+    let viewModel = await makeMVPFlowResultViewModel(
+        repository: repository,
+        pairContextProvider: pairContextProvider
+    )
+    await viewModel.load()
+
+    #expect(await viewModel.screenState == .loaded)
+    #expect(await viewModel.displayEntries.map(\.entry.candidateName) == [
+        "深夜に食べたラーメン",
+        "初日の出を見に行った"
+    ])
+    #expect(await viewModel.displayEntries.map(\.entry.totalPoints) == [15, 15])
+    #expect(repository.savedResults.count == 1)
+
+    await viewModel.requestResetConfirmation()
+    await viewModel.confirmReset()
+
+    #expect(await viewModel.resetDestinationCategoryId == "category-1")
+    #expect(repository.category?.status == .draft)
+    #expect(repository.category?.generation == 1)
+    #expect(repository.inputs.isEmpty)
+    #expect(repository.savedResults.isEmpty)
+    #expect(repository.candidates.map(\.name) == [
+        "初日の出を見に行った",
+        "深夜に食べたラーメン"
+    ])
+}
+
+private func assertMVPFlowCanReEnterAfterReset(
+    repository: InMemoryMVPFlowRepository,
+    pairContextProvider: FixedMVPFlowPairContextProvider
+) async {
+    let viewModel = await TextCandidateManagementViewModel(
+        repository: repository,
+        pairContextProvider: pairContextProvider,
+        year: 2026,
+        categoryId: "category-1",
+        now: { Date(timeIntervalSince1970: 1_800_000_300) },
+        makeCandidateId: repository.nextCandidateId
+    )
+    await viewModel.load()
+    await waitForMVPFlowCandidates(viewModel, expectedCount: 2)
+
+    #expect(await viewModel.isEditable == true)
+    #expect(await viewModel.canConfirm == true)
 }
 
 @MainActor
